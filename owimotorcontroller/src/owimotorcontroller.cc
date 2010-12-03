@@ -26,45 +26,50 @@ THE SOFTWARE.
 
 usbowiarm::usbowiarm(ssize_t armnumber){
 	this->handle = NULL;
-//init… could fail to init
-	libusb_init(NULL);
 
-
-	libusb_device **list;
-	libusb_device *found = NULL;
-
-//get list of usb… could fail to find any usb 
-	ssize_t cnt = libusb_get_device_list(NULL, &list);
+	struct usb_bus *busses;
+	struct usb_device *found = NULL;
 	ssize_t owiarm_cnt = 0;
 	int err = 0;
-	if (cnt < 0)
+
+	usb_init();
+	usb_find_busses();
+	usb_find_devices();
+	busses = usb_get_busses();
+
+	if (busses == NULL)
 	   fprintf(stderr, "failed to get a valid device list\n");
 	else{
-		for (ssize_t i = 0; i < cnt; i++) {
-		   libusb_device *device = list[i];
-//find interesting usb devices
-		   if (is_owiarm(device)) {
-			if (owiarm_cnt == armnumber){
-				found = device;
-				break;
-			}
-			owiarm_cnt++;
-		   }
-		}
-//find target usb… could fail to find
-//open target usb… could fail to open
-		if (found) {
-		   err = libusb_open(found, &(this->handle));
-		   if (err)
-			fprintf(stderr, "failed to get open the device");
 
-		   libusb_claim_interface(this->handle, 0);
+		struct usb_bus *bus;
+		for (bus = busses; bus; bus = bus->next) {
+			struct usb_device *dev;
+			for (dev = bus->devices; dev; dev = dev->next) {
+				/* Check if this device is a printer */
+				if (is_owiarm(dev)) {
+					if (owiarm_cnt == armnumber){
+						found = dev;
+						break;
+					}
+					owiarm_cnt++;
+				}
+			}
+		}
+
+		if (found) {
+		   this->handle = usb_open(found);
+		   if (this->handle == NULL)
+			fprintf(stderr, "failed to get open the device");
+                   if (usb_set_configuration(this->handle, 1)<0)
+			fprintf(stderr, "failed to set device device config to 1");
+		   if (usb_claim_interface(this->handle, 0) < 0)
+			fprintf(stderr, "failed to claim device");
+
 		}else{
 			fprintf(stderr, "failed to find device %i",(int)armnumber);
 		}
-		libusb_free_device_list(list, 1);
+		//usb_free_device_list(list, 1);
 	}
-//configure initial behavior… can't really fail here.
 	//ensure motors and LED are off upon initialization
 	halt_motors();
 	packetsize = 3;
@@ -75,21 +80,14 @@ usbowiarm::~usbowiarm(){
 	if (this->handle){
 		halt_motors();
 		setup_LEDOFF();set_control();
-		libusb_release_interface(this->handle, 0);
-		libusb_close(this->handle);
-		libusb_exit(NULL);
-		//delete this->handle;
+		usb_release_interface(this->handle, 0);
+		usb_close(this->handle);
 	}
 }
 
-bool usbowiarm::is_owiarm(libusb_device *device)
+bool usbowiarm::is_owiarm(struct usb_device *device)
 {
-	struct libusb_device_descriptor descriptor;
-	if (libusb_get_device_descriptor(device, &descriptor) < 0) {
-		fprintf(stderr, "failed to get device descriptor");
-		return false;
-	}
-	if (( descriptor.idProduct== 0x0 ) && (descriptor.idVendor== 0x1267 ))
+	if (( device->descriptor.idProduct== 0x0 ) && (device->descriptor.idVendor== 0x1267 ))
 		return true;
 	return false;
 }
@@ -111,7 +109,7 @@ void usbowiarm::set_control()
 	packet[1] = (ctrl & 0xff00) >> 8;
 	packet[2] = (ctrl & 0xff0000) >> 16;
 	if(this->handle)
-		libusb_control_transfer(this->handle, LIBUSB_REQUEST_TYPE_VENDOR | LIBUSB_RECIPIENT_DEVICE, 6, 0x100, 0, packet, 3, 0);
+		usb_control_msg(this->handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE,6, 0x100, 0, (char *)packet, 3, 0);
 	else
 		fprintf(stderr, "Would have liked to send the arm %x\n",ctrl);
 }
@@ -168,7 +166,7 @@ void usbowiarm::test()
 	set_control();
 	fprintf(stderr, " the above was the result of all motors reverse\n");
 	for (char i = 0; i < number_motors; i++){
-		setup_motoroff(i);
+		setup_motoroff(number_motors-i-1);
 		set_control();
 		usleep(30000);
 	}

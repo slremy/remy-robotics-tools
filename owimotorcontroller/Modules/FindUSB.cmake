@@ -1,26 +1,27 @@
-# - Try to find libusb-1.0
+# - Try to find libusb-0.1
 # Once done, this will define
 #
-# USB_FOUND - system has libusb-1.0
-# USB_INCLUDE_DIRS - the libusb-1.0 include directories
-# USB_LIBRARIES - link these to use libusb-1.0
+# USB_FOUND - system has libusb-0.1
+# USB_INCLUDE_DIRS - the libusb-0.1 include directories
+# USB_LIBRARIES - link these to use libusb-0.1
 
 include(LibFindMacros)
 
 # Dependencies
 
 # Use pkg-config to get hints about paths
-libfind_pkg_check_modules(USB_PKGCONF libusb-1.0>=1.0.3)
+libfind_pkg_check_modules(USB_PKGCONF libusb>=0.1)
 
 # Include dir
 find_path(USB_INCLUDE_DIR
-  NAMES libusb.h
+  NAMES usb.h
   PATHS ${USB_PKGCONF_INCLUDE_DIRS}
 )
 
+
 # Finally the library itself
 find_library(USB_LIBRARY
-  NAMES usb-1.0
+  NAMES usb
   PATHS ${USB_PKGCONF_LIBRARY_DIRS}
 )
 

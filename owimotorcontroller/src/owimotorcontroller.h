@@ -20,7 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include <libusb.h>
+#include <usb.h>
+#include <stdint.h>
 
 
 //this is a speed controlled arm, where the speeds are hopefully constant for each joint, and consistent between calls and generally unknown.
@@ -29,11 +30,11 @@ class usbowiarm{
 	private: 
 		uint32_t ctrl;
 		bool led;
-		libusb_device_handle *handle;
+		struct usb_dev_handle *handle;
 		char number_motors;
 		char packetsize;
 	protected: 
-		bool is_owiarm(libusb_device *device);
+		bool is_owiarm(struct usb_device *device);
 	public: 
 		usbowiarm(ssize_t armnumber);
 		~usbowiarm();
