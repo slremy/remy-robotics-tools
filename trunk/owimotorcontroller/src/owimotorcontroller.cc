@@ -24,12 +24,12 @@ THE SOFTWARE.
 #include <stdio.h>
 #include <unistd.h>
 
-usbowiarm::usbowiarm(ssize_t armnumber){
+usbowiarm::usbowiarm(int armnumber){
 	this->handle = NULL;
 
 	struct usb_bus *busses;
 	struct usb_device *found = NULL;
-	ssize_t owiarm_cnt = 0;
+	char owiarm_cnt = 0;
 	int err = 0;
 
 	usb_init();
@@ -47,7 +47,7 @@ usbowiarm::usbowiarm(ssize_t armnumber){
 			for (dev = bus->devices; dev; dev = dev->next) {
 				/* Check if this device is a printer */
 				if (is_owiarm(dev)) {
-					if (owiarm_cnt == armnumber){
+					if (owiarm_cnt == (char)armnumber){
 						found = dev;
 						break;
 					}
@@ -160,11 +160,11 @@ void usbowiarm::setup_motoroff(char i)
 void usbowiarm::test()
 {
 	fprintf(stderr, "beginning test\n");
-	for (char i = 0; i < number_motors; i++){
-		setup_motorreverse(i);
-	}
-	set_control();
-	fprintf(stderr, " the above was the result of all motors reverse\n");
+//	for (char i = 0; i < number_motors; i++){
+//		setup_motorreverse(i);
+//	}
+//	set_control();
+//	fprintf(stderr, " the above was the result of all motors reverse\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motoroff(number_motors-i-1);
 		set_control();

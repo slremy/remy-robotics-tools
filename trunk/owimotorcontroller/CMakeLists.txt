@@ -3,6 +3,7 @@ PROJECT(libowimotorcontroller)
 cmake_minimum_required(VERSION 2.6)
 
 OPTION(BUILD_EXAMPLES "Build example programs" ON)
+OPTION(BUILD_INTERFACES "Build SWIG interfaces" ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Modules/")
 
@@ -16,7 +17,9 @@ IF(BUILD_EXAMPLES)
   add_subdirectory (examples)
 ENDIF()
 
-
+IF(BUILD_INTERFACES)
+  add_subdirectory (interfaces)
+ENDIF()
 
 # uninstall target
 configure_file(
