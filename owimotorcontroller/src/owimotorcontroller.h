@@ -36,7 +36,7 @@ class usbowiarm{
 	protected: 
 		bool is_owiarm(struct usb_device *device);
 	public: 
-		usbowiarm(ssize_t armnumber);
+		usbowiarm(int armnumber);
 		~usbowiarm();
 		void halt_motors();
 		void set_control();
