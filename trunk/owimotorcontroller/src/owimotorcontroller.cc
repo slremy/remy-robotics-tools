@@ -115,7 +115,7 @@ void usbowiarm::set_control()
 }
 
 /** return the last command issued to the motor controller*/
-uint32_t usbowiarm::get_control()
+int usbowiarm::get_control()
 {
     return ctrl;
 }

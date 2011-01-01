@@ -28,7 +28,7 @@ THE SOFTWARE.
 class usbowiarm{
 
 	private: 
-		uint32_t ctrl;
+		int ctrl;
 		bool led;
 		struct usb_dev_handle *handle;
 		char number_motors;
@@ -40,7 +40,7 @@ class usbowiarm{
 		~usbowiarm();
 		void halt_motors();
 		void set_control();
-		uint32_t get_control();
+		int get_control();
 		void setup_LEDON();
 		void setup_LEDOFF();
 		void setup_LEDTOGGLE();
@@ -50,4 +50,3 @@ class usbowiarm{
 
 		void test();
 };
-
