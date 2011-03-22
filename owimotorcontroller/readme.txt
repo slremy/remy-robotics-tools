@@ -6,7 +6,7 @@ Ensure that you have:
 	binaries exist for many distributions
 	for windows, use libusb-win32
 
-To do an in source build, in the directory where the library was downloaded:
+To do an out of source build, in the directory where the library was downloaded:
 
 mkdir build
 cd build
