@@ -45,7 +45,7 @@ usbowiarm::usbowiarm(int armnumber){
 		for (bus = busses; bus; bus = bus->next) {
 			struct usb_device *dev;
 			for (dev = bus->devices; dev; dev = dev->next) {
-				/* Check if this device is a printer */
+				/* Check if this device is an owi arm */
 				if (is_owiarm(dev)) {
 					if (owiarm_cnt == (char)armnumber){
 						found = dev;
