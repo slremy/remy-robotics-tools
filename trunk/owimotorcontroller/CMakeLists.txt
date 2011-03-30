@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 
 OPTION(BUILD_EXAMPLES "Build example programs" ON)
 OPTION(BUILD_matlab_INTERFACES "Build (fake) matlab SWIG interfaces" OFF)
-OPTION(BUILD_octave_INTERFACES "Build octave SWIG interfaces" ON)
+OPTION(BUILD_octave_INTERFACES "Build octave SWIG interfaces" OFF)
 OPTION(BUILD_java_INTERFACES "Build java SWIG interfaces" ON)
 OPTION(BUILD_python_INTERFACES "Build python SWIG interfaces" ON)
 
