@@ -5,6 +5,9 @@ Ensure that you have:
 2) libusb0.1 installed
 	binaries exist for many distributions
 	for windows, use libusb-win32
+3) swig installed
+	binaries exist for many distributions
+	
 
 To do an out of source build, in the directory where the library was downloaded:
 
