@@ -1,4 +1,4 @@
-# This is a CMake example for Python
+# This is a CMake example for Java
 
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
