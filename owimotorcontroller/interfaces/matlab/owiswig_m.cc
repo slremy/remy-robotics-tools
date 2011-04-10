@@ -10,7 +10,7 @@
 #define mxIsNumericScalar(mx) ( mxIsScalar(mx) && mxIsNumeric(mx) )
 #define mxIsUint32Scalar(mx) ( mxIsScalar(mx) && mxIsUint32(mx) )
 
-#define mxGetArm(x) *(usbowiarm **) mxGetPr(mxGetField(x, 0, "_cself"))
+#define mxGetArm(x) *(usbowiarm **) mxGetPr(x)
 
 const char *arm_fields[] = {"_cself", "_type"};
 const unsigned int arm_fields_count = 2;
@@ -70,6 +70,31 @@ void mexFunction
         mexErrMsgTxt("Unknown method");
 }
 
+void arm_create
+    (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
+    
+    usbowiarm *arm;
+    usbowiarm *tmp;
+    int armid;
+    uint8_t *z;
+    if (nlhs != 1)
+        /* We don't want this just going to
+           ans as it needs to be destroy()ed later */
+        mexErrMsgTxt("Not enough output arguments");
+
+    if (nrhs != 2 || !mxIsNumericScalar(prhs[1]))
+        mexErrMsgTxt("Not enough or bad input arguments");
+
+    armid = mxGetScalar(prhs[1]);
+    arm = new usbowiarm(armid);
+
+    if(!arm)
+        return;
+
+    plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS,mxREAL);
+    tmp = (usbowiarm *) mxGetData(plhs[0]);
+    tmp = arm;
+}
 
 void halt_motors
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
@@ -239,28 +264,15 @@ void arm_destroy (int nlhs, mxArray *plhs[],
                      int nrhs, const mxArray *prhs[])
 {
         usbowiarm *arm;
-        mxArray *data, *pr;
         int i;
         if (nrhs != 2 ||
             !mxIsValidStruct(prhs[1]))
             mexErrMsgTxt("Not enough or invalid input arguments");
 
-        data = mxGetField(prhs[1], 0, "_type");
-        mxFree(mxGetPr(data));
-
-        data = mxGetField(prhs[1], 0, "_cself");
-        arm = *(usbowiarm **) mxGetPr(data);
+        arm = *(usbowiarm **) mxGetPr(prhs[1]);
 
         arm->~usbowiarm();
         delete(arm);
 
-
-        for(i=0; i < arm_fields_count; i++) {
-                 data = mxGetField(prhs[1], 0, arm_fields[i]);
-                 mxSetData(data, (void *) 0);
-                 mxSetM(data, 0); mxSetN(data, 0);
-                /* Since we do some pointer magic we have to
-                 * hide all that to let this struct be cleared */
-        }
         mxSetM((mxArray *) prhs[1], 0); mxSetN((mxArray *) prhs[1], 0);
 }
