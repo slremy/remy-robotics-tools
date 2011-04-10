@@ -269,7 +269,7 @@ void arm_destroy (int nlhs, mxArray *plhs[],
             !mxIsValidStruct(prhs[1]))
             mexErrMsgTxt("Not enough or invalid input arguments");
 
-        arm = *(usbowiarm **) mxGetPr(prhs[1]);
+        arm = mxGetArm(prhs[1]);
 
         arm->~usbowiarm();
         delete(arm);
