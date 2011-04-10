@@ -13,8 +13,8 @@
 #define mxGetArm(x) *(usbowiarm **) mxGetPr(x)
 
 
-void arm_create		(int, mxArray *[], int, const mxArray *[]);
-void arm_destroy	(int, mxArray *[], int, const mxArray *[]);
+void create_arm		(int, mxArray *[], int, const mxArray *[]);
+void destroy_arm	(int, mxArray *[], int, const mxArray *[]);
 void halt_motors	(int, mxArray *[], int, const mxArray *[]);
 void set_control	(int, mxArray *[], int, const mxArray *[]);
 void get_control	(int, mxArray *[], int, const mxArray *[]);
@@ -39,10 +39,10 @@ void mexFunction
     funName = (char *) mxArrayToString(prhs[0]);
     funNameEnd = funName + strlen(funName);
 
-    if (!strcmp(funName, "arm_create"))
-        arm_create(nlhs, plhs, nrhs, prhs);
-    else if (!strcmp(funName, "arm_destroy"))
-        arm_destroy(nlhs, plhs, nrhs, prhs);
+    if (!strcmp(funName, "create_arm"))
+        create_arm(nlhs, plhs, nrhs, prhs);
+    else if (!strcmp(funName, "destroy_arm"))
+        destroy_arm(nlhs, plhs, nrhs, prhs);
     else if (!strcmp(funName, "halt_motors"))
         halt_motors(nlhs, plhs, nrhs, prhs);
     else if (!strcmp(funName, "set_control"))
@@ -67,7 +67,7 @@ void mexFunction
         mexErrMsgTxt("Unknown method");
 }
 
-void arm_create
+void create_arm
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     
     usbowiarm *arm;
@@ -247,7 +247,7 @@ void test
         mxArray *data, *pr;
         int i;
         if (nrhs != 2 ||
-            !mxIsValidStruct(prhs[1]))
+            !mxIsUint32Scalar(prhs[1]))
             mexErrMsgTxt("Not enough or invalid input arguments");
 
         arm = mxGetArm(prhs[1]);
@@ -257,12 +257,12 @@ void test
         mxSetM((mxArray *) prhs[1], 0); mxSetN((mxArray *) prhs[1], 0);
 }
 
-void arm_destroy 
+void destroy_arm 
         (int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
         
         usbowiarm *arm;
         if (nrhs != 2 ||
-            !mxIsValidStruct(prhs[1]))
+            !mxIsUint32Scalar(prhs[1]))
             mexErrMsgTxt("Not enough or invalid input arguments");
 
         arm = mxGetArm(prhs[1]);
