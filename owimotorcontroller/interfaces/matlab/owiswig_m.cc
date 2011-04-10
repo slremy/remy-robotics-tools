@@ -12,9 +12,6 @@
 
 #define mxGetArm(x) *(usbowiarm **) mxGetPr(x)
 
-const char *arm_fields[] = {"_cself", "_type"};
-const unsigned int arm_fields_count = 2;
-
 
 void arm_create		(int, mxArray *[], int, const mxArray *[]);
 void arm_destroy	(int, mxArray *[], int, const mxArray *[]);
@@ -243,9 +240,9 @@ void setup_motoroff
     mxSetM((mxArray *) prhs[1], 0); mxSetN((mxArray *) prhs[1], 0);
 }
 
-void test (int nlhs, mxArray *plhs[],
-                     int nrhs, const mxArray *prhs[])
-{
+void test 
+        (int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
+        
         usbowiarm *arm;
         mxArray *data, *pr;
         int i;
@@ -260,11 +257,10 @@ void test (int nlhs, mxArray *plhs[],
         mxSetM((mxArray *) prhs[1], 0); mxSetN((mxArray *) prhs[1], 0);
 }
 
-void arm_destroy (int nlhs, mxArray *plhs[],
-                     int nrhs, const mxArray *prhs[])
-{
+void arm_destroy 
+        (int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
+        
         usbowiarm *arm;
-        int i;
         if (nrhs != 2 ||
             !mxIsValidStruct(prhs[1]))
             mexErrMsgTxt("Not enough or invalid input arguments");
