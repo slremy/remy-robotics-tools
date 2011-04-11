@@ -1,17 +1,14 @@
-//Code inspired by example of the playermex project
+//Code inspired by example of the playermex project and matlabcentral posts by O. Woodford (8 Jun, 2010)
 #include "mex.h"
 #include "owimotorcontroller.h"
 #include <string.h>
+#include "class_handle.h"
 
-#define mxIsValidStruct(mx) (mxIsScalar(mx) && mxIsStruct(mx))
 #define mxIsScalar(mx) \
     ( (2 == mxGetNumberOfDimensions(mx)) \
         && (1 == mxGetM(mx)) && (1 == mxGetN(mx)) )
 #define mxIsNumericScalar(mx) ( mxIsScalar(mx) && mxIsNumeric(mx) )
 #define mxIsUint32Scalar(mx) ( mxIsScalar(mx) && mxIsUint32(mx) )
-
-#define mxGetArm(x) *(usbowiarm **) mxGetPr(x)
-
 
 void create_arm		(int, mxArray *[], int, const mxArray *[]);
 void destroy_arm	(int, mxArray *[], int, const mxArray *[]);
@@ -70,8 +67,6 @@ void mexFunction
 void create_arm
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
     
-    usbowiarm *arm;
-    usbowiarm *tmp;
     int armid;
     uint8_t *z;
     if (nlhs != 1)
@@ -83,26 +78,18 @@ void create_arm
         mexErrMsgTxt("Not enough or bad input arguments");
 
     armid = mxGetScalar(prhs[1]);
-    arm = new usbowiarm(armid);
-
-    if(!arm)
-        return;
-
-    plhs[0] = mxCreateNumericMatrix(1, 1, mxINT32_CLASS,mxREAL);
-    tmp = (usbowiarm *) mxGetData(plhs[0]);
-    tmp = arm;
+    class_handle< usbowiarm > *arm = new class_handle< usbowiarm >(0);
+    plhs[0]=convertPtr2Mat(arm);
 }
 
 void halt_motors
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int ret;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->halt_motors();
 
@@ -112,13 +99,11 @@ void halt_motors
 void set_control
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int ret;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->set_control();
 
@@ -128,28 +113,25 @@ void set_control
 void get_control
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int ret;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     ret = arm->get_control();
 
     plhs[0] = mxCreateDoubleScalar(ret);
+    mxSetM((mxArray *) prhs[1], 0); mxSetN((mxArray *) prhs[1], 0);
 }
 
 void setup_LEDON
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_LEDON();
 
@@ -159,12 +141,10 @@ void setup_LEDON
 void setup_LEDOFF
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_LEDOFF();
 
@@ -174,12 +154,10 @@ void setup_LEDOFF
 void setup_LEDTOGGLE
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
-    if (nrhs != 2 ||
-        !mxIsUint32Scalar(prhs[1]) )
+    if (nrhs != 2)
         mexErrMsgTxt("Not enough or invalid input arguments");
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_LEDTOGGLE();
 
@@ -189,15 +167,14 @@ void setup_LEDTOGGLE
 void setup_motorforward
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int motornum;
     if (nrhs != 3 ||
-        !mxIsUint32Scalar(prhs[1]) || !mxIsNumericScalar(prhs[2]))
+        !mxIsNumericScalar(prhs[2]))
         mexErrMsgTxt("Not enough or invalid input arguments");
 
     motornum = int(mxGetScalar(prhs[2]));
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_motorforward(motornum);
 
@@ -207,15 +184,14 @@ void setup_motorforward
 void setup_motorreverse
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int motornum;
     if (nrhs != 3 ||
-        !mxIsUint32Scalar(prhs[1]) || !mxIsNumericScalar(prhs[2]))
+        !mxIsNumericScalar(prhs[2]))
         mexErrMsgTxt("Not enough or invalid input arguments");
 
     motornum = int(mxGetScalar(prhs[2]));
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_motorreverse(motornum);
 
@@ -225,15 +201,14 @@ void setup_motorreverse
 void setup_motoroff
     (int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[]) {
 
-    usbowiarm *arm;
     int motornum;
     if (nrhs != 3 ||
-        !mxIsUint32Scalar(prhs[1]) || !mxIsNumericScalar(prhs[2]))
+        !mxIsNumericScalar(prhs[2]))
         mexErrMsgTxt("Not enough or invalid input arguments");
 
     motornum = int(mxGetScalar(prhs[2]));
 
-    arm = mxGetArm(prhs[1]);
+    class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
     arm->setup_motoroff(motornum);
 
@@ -243,14 +218,7 @@ void setup_motoroff
 void test 
         (int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
         
-        usbowiarm *arm;
-        mxArray *data, *pr;
-        int i;
-        if (nrhs != 2 ||
-            !mxIsUint32Scalar(prhs[1]))
-            mexErrMsgTxt("Not enough or invalid input arguments");
-
-        arm = mxGetArm(prhs[1]);
+        class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
         arm->test();
 
@@ -260,12 +228,10 @@ void test
 void destroy_arm 
         (int nlhs, mxArray *plhs[],int nrhs, const mxArray *prhs[]) {
         
-        usbowiarm *arm;
-        if (nrhs != 2 ||
-            !mxIsUint32Scalar(prhs[1]))
+         if (nrhs != 2)
             mexErrMsgTxt("Not enough or invalid input arguments");
 
-        arm = mxGetArm(prhs[1]);
+        class_handle< usbowiarm > *arm = convertMat2Ptr< usbowiarm >(prhs[1]);
 
         arm->~usbowiarm();
         delete(arm);
