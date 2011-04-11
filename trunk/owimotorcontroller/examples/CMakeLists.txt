@@ -33,10 +33,6 @@ ELSE ("${CMAKE_BINARY_DIR}" MATCHES "^${CMAKE_SOURCE_DIR}$")
     FOREACH(file ${OWIARM_INTERPRETED_FILES})
       SET(src "${CMAKE_SOURCE_DIR}/examples/${file}")
       SET(tgt "${CMAKE_BINARY_DIR}/examples/${file}")
-      ADD_CUSTOM_COMMAND(DEPENDS ${src}
-                         COMMAND ${CMAKE_COMMAND}
-                         ARGS -E copy ${src} ${tgt}
-                         OUTPUT ${tgt}
-                         COMMENT "source copy")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt})
     ENDFOREACH(file)
 ENDIF ("${CMAKE_BINARY_DIR}" MATCHES "^${CMAKE_SOURCE_DIR}$")
