@@ -20,6 +20,9 @@ IF(MATLAB_INCLUDE_DIR)
 		set(MEXEXT "mex")
 	endif()
 
+      SET(src "${CMAKE_SOURCE_DIR}/interfaces/matlab/usbowiarm.m")
+      SET(tgt "${CMAKE_BINARY_DIR}/interfaces/matlab/usbowiarm.m")
+      execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt})
 
 	ADD_LIBRARY(owiswig_m MODULE owiswig_m.cc)
 	TARGET_LINK_LIBRARIES(owiswig_m ${MATLAB_LIBRARIES} ${USB_LIBRARIES} owimotorcontroller)
