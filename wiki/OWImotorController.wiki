@@ -1,6 +1,11 @@
 #summary Brief introduction to the owimotor controller library
 = Introduction =
+This library was written to extend the functionality of a popular educational Robotic [http://www.pololu.com/catalog/product/947 Arm]  
 
+[http://www.pololu.com/picture/0J1248.200.jpg?1289989486]
+<wiki:comment>
+<wiki:video url="http://www.youtube.com/watch?v=LivkkLzf82c"/>
+</wiki:comment>
 
 The following instructions will presume that you are familiar with a posix like environment and command line tools that are common in several flavors of linux and environments such as cygwin.
 
