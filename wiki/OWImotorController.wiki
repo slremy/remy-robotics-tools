@@ -42,7 +42,7 @@ To make this magic happen you type something like:
 
 And include what ever other command line parameters to make the world keep spinning.
 
-==Using the Library==
+=Using the Library=
 
 The underlying structure of the library permits the properties of the joint commands to be *_setup_* for each motor, and then the *_set_control_* commits the commands to the arm.
 
