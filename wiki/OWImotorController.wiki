@@ -15,7 +15,7 @@ From a terminal window in a convenient location type the following command to do
 
 This places the code into a owimotorcontroller subdirectory of the current directory.
 
-Out of source builds of the code are recommended and the [readme.txt] contains the directions to compile the code.
+Out of source builds of the code are recommended and the [http://code.google.com/p/remy-robotics-tools/source/browse/trunk/owimotorcontroller/readme.txt readme.txt] contains the directions to compile the code.
 
 As can be expected, tools such as TortoiseSVN, or subclipse could also be used.
 
@@ -24,7 +24,7 @@ If you would like to include the matlab wrapper, at the command line, type:
 
 *cmake -DBUILD_matlab_INTERFACES=ON ..
 
-You can also change parameters like these in the [Project's main CMakeLists.txt]
+You can also change parameters like these in the Project's main [http://code.google.com/p/remy-robotics-tools/source/browse/trunk/owimotorcontroller/CMakeLists.txt CMakeLists.txt]
 
 At the command line (or your cmake-gui) you can also generate build solutions for Xcode, Eclipse, KDevelop3, and Visual Studio (must remember to run cmake before loading in the solution)
 
