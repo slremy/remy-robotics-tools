@@ -1,6 +1,6 @@
 #summary Brief introduction to the owimotor controller library
 = Introduction =
-This library was written to extend the functionality of a popular educational Robotic [http://www.pololu.com/catalog/product/947 Arm]  
+This library was written to extend the functionality of a popular educational Robotic [http://www.pololu.com/catalog/product/947 Arm]  with it's USB [http://www.sears.com/shc/s/p_10153_12605_SPM74462845P interface].
 
 [http://www.pololu.com/picture/0J1248.200.jpg?1289989486]
 <wiki:comment>
