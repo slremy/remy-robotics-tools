@@ -10,7 +10,7 @@ This library was written to extend the functionality of a popular educational Ro
 The following instructions will presume that you are familiar with a posix like environment and command line tools that are common in several flavors of linux and environments such as cygwin.
 
 With that said, effort has been placed to expose the provided motor controller library to languages and environments other than the c++ in which it was written.
-[http://swig.org/exec.html SWIG] wrappers currently exist for Python, Octave, Matlab, and Java.
+[http://swig.org/exec.html SWIG] wrappers currently exist for Python, Octave, and Java.  A custom wrapper was also written for Matlab.
 
 Although unix style makefiles are created by default, [http://www.cmake.org/Wiki/CMake CMake] can enable it to be used in other development environments (like Visual Studio or XCode)
 
