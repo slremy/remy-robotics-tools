@@ -1,0 +1,38 @@
+#summary One-sentence summary of this page. #= Details = #Add your content here.  Format your content with: #  * Text in *bold* or _italic_ #  * Headings, paragraphs, and lists #  * Automatic links to other wiki pages
+
+= Introduction =
+
+
+The following instructions will presume that you are familiar with a posix like environment and command line tools that are common in several flavors of linux and environments such as cygwin.
+
+With that said, effort has been placed to expose the provided motor controller library to languages and environments other than the c++ in which it was written.
+Wrappers currently exist for Python, Octave, Matlab and Java.
+
+Although unix style makefiles are created by default, CMake can enable it to be used in other development environments (like VS or XCode)
+
+From a terminal window in a convenient location type the following command to download a local copy of the library:
+
+*svn checkout http://remy-robotics-tools.googlecode.com/svn/trunk/owimotorcontroller owimotorcontroller
+
+This places the code into a owimotorcontroller subdirectory of the current directory.
+
+Out of source builds of the code are recommended and the readme.txt contains the directions to compile the code.
+
+As can be expected, tools such as TortoiseSVN, or subclipse could also be used.
+
+==Options==
+If you would like to include the matlab wrapper, at the command line, type:
+
+*cmake -DBUILD_matlab_INTERFACES=ON ..
+
+You can also change parameters like these in the CMakeLists.txt
+
+At the command line (or your cmake-gui) you can also generate build solutions for Xcode, Eclipse, KDevelop3, and Visual Studio (must remember to run cmake before loading in the solution)
+
+To make this magic happen you type something like:
+
+*cmake -G Xcode
+
+And include what ever other command line parameters to make the world keep spinning.
+
+Have fun!
