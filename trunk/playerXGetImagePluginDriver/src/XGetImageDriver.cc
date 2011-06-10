@@ -211,14 +211,11 @@ void XGetImageDriver::Main()
 						colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
 						colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
 						
-						int index = y+x*this->xImageSample->width;
-						data->image[index] =  colorChannel[0];
+						int index = 3*x+3*y*this->xImageSample->width;  //orientation switch! 
+						data->image[index] =  colorChannel[2];
 						data->image[index + 1] = colorChannel[1];
-						data->image[index + 2] = colorChannel[2];
+						data->image[index + 2] = colorChannel[0];
 						
-						//CV_IMAGE_ELEM(ocvImage, uchar, y, x * ocvImage->nChannels) = colorChannel[0];
-						//CV_IMAGE_ELEM(ocvImage, uchar, y, x * ocvImage->nChannels + 1) = colorChannel[1];
-						//CV_IMAGE_ELEM(ocvImage, uchar, y, x * ocvImage->nChannels + 2) = colorChannel[2];
 					}
 				}
 				
