@@ -49,11 +49,7 @@
  - none
  
  @par Configuration file options
- 
- - url (string)
- - Default: ""
- - URL of an OpenCV-playable source. Could be an ip-camera, a movie file, etc.
- 
+  
  - sleep_nsec (integer)
  - Default: 10000000 (=10ms which gives max 100 fps)
  - timespec value for nanosleep()
@@ -63,13 +59,20 @@
  @verbatim
  driver
  (
- name "XGetImageDriver"
- provides ["camera:0"]
- url "file:///home/user/movie.mpg"
+  name "xgetimagedriver"
+  plugin "xgetimagedriver.so"
+  provides ["camera:0"]
+
+  startX 0
+  startY 0
+  widthX 100
+  heightY 100
+  sleep_nsec 33300000
+
  )
  @endverbatim
  
- @author Paul Osmialowski
+ @author sr
  
  */
 /** @} */
