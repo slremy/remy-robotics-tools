@@ -60,7 +60,6 @@ int XGetImageDriver::MainSetup()
 
 void XGetImageDriver::MainQuit()
 {
-	if (this->xImageSample) XDestroyImage(this->xImageSample);
 	if (this->display) XCloseDisplay(this->display);
 	this->display = NULL;
 	this->screen = NULL;
@@ -246,7 +245,7 @@ void XGetImageDriver::Main()
 		this->Publish(device_addr, PLAYER_MSGTYPE_DATA, PLAYER_CAMERA_DATA_STATE, reinterpret_cast<void *>(data), 0, NULL, false);
 		// copy = false, don't dispose anything here
 		
-		/*not sure if the above statement applied to destroy image, no cvrelease :(*/XDestroyImage(this->xImageSample);
+		XDestroyImage(this->xImageSample);
 		
 		pthread_testcancel();
 	}
