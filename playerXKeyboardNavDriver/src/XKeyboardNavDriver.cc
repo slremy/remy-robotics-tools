@@ -187,45 +187,45 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 				PLAYER_WARN1("W:%d",this->WASD_keycodes[0]);
 				if (!WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[0], True, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), True, CurrentTime);
 					WASD_status[0]=true;
 				}
 				if (WASD_status[1])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[1], False, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), False, CurrentTime);
 					WASD_status[1]=false;
 				}
 			}else if (px <-.5) {
 				PLAYER_WARN1("S:%d",this->WASD_keycodes[1]);
 				if (!WASD_status[1])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[1], True, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), True, CurrentTime);
 					WASD_status[1]=true;
 				}
 				if (WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[0], False, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), False, CurrentTime);
 					WASD_status[0]=false;
 				}
 			}else {
 				if (WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[0], False, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), False, CurrentTime);
 					WASD_status[0]=false;
 				}
 				if (WASD_status[1])
 				{
-					XTestFakeButtonEvent(this->display, WASD_keycodes[1], False, CurrentTime);
+					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), False, CurrentTime);
 					WASD_status[1]=false;
 				}
 			}
 
 			pa = (float)position_cmd.vel.pa;
 			if (pa > .5) {
-				PLAYER_WARN1("A:%d",this->WASD_keycodes[2]);
+				PLAYER_WARN1("A:%d",XKeysymToKeycode(this->display,this->WASD_keycodes[2]));
 				;//left
 			}else if (pa<-.5) {
-				PLAYER_WARN1("D:%d",this->WASD_keycodes[3]);
+				PLAYER_WARN1("D:%d",XKeysymToKeycode(this->display,this->WASD_keycodes[3]));
 				;//right
 			}else {
 				;//stop
