@@ -80,11 +80,40 @@
 #ifndef XGetImageDriver_H_
 #define XGetImageDriver_H_
 
+#if !defined(IS_MACOSX) && defined(__APPLE__) && defined(__MACH__)
+	#define IS_MACOSX
+#endif /* IS_MACOSX */
+
+#if !defined(IS_WINDOWS) && (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__))
+	#define IS_WINDOWS
+#endif /* IS_WINDOWS */
+
+#if !defined(USE_X11) && !defined(NUSE_X11) && !defined(IS_MACOSX) && !defined(IS_WINDOWS)
+	#define USE_X11
+#endif /* USE_X11 */
+
+
+#if defined(IS_MACOSX)
+//	#include <ApplicationServices/ApplicationServices.h>
+//#elif defined(USE_X11)
+	// X Server includes
+	#include <X11/Xlib.h>
+	#include <X11/Xutil.h>
+#elif defined(IS_WINDOWS)
+	#define STRICT /* Require use of exact types. */
+	#define WIN32_LEAN_AND_MEAN 1 /* Speed up compilation. */
+	#include <windows.h>
+#elif !defined(IS_MACOSX) && !defined(USE_X11)
+	#error "Sorry, this platform isn't supported yet!"
+#endif
+
+
 #include <libplayercore/playercore.h>
 #include <cstring>
-// X Server includes
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+
+
+
+
 
 //---------------------------------
 
@@ -102,6 +131,17 @@ public: virtual int ProcessMessage(QueuePointer & resp_queue,
 								   void * data);
 	
 private: virtual void Main();
+
+#if defined(IS_MACOSX)
+//	private: void DestroyImage(CGImageRef* image);
+	//#elif defined(USE_X11)
+private: void DestroyImage(XImage* image);
+private: void CloseDisplay(Display* display);
+private: Display* OpenDisplay();
+private: int CopyScreen(player_camera_data_t* data);
+#elif defined(IS_WINDOWS)
+	//place holder
+#endif
 	
     // X resources
 private: Display* display;
