@@ -26,7 +26,6 @@ XGetImageDriver::XGetImageDriver(ConfigFile * cf, int section)
 : ThreadedDriver(cf, section, true, PLAYER_MSGQUEUE_DEFAULT_MAXLEN, PLAYER_CAMERA_CODE)
 {
 	this->display = NULL;
-	this->screen = NULL;
 	this->xImageSample = NULL;
 	
 	this->startX = cf->ReadInt(section, "startX", 0);
@@ -48,13 +47,20 @@ int XGetImageDriver::MainSetup()
 	if (this->xImageSample) XDestroyImage(this->xImageSample);
 	if (this->display) XCloseDisplay(this->display);
 	this->display = XOpenDisplay(NULL); // Open first (-best) display
-    this->screen = DefaultScreenOfDisplay(display);
+	Screen* screen = DefaultScreenOfDisplay(this->display);
 	
 	if (!(this->display))
 	{
 		PLAYER_ERROR("Couldn't create X capture display. Something is wrong with your XLib.");
 		return -1;
 	}
+	if (!(screen))
+	{
+		PLAYER_ERROR("Couldn't access screen Something is wrong with your XLib.");
+		return -1;
+	}
+	PLAYER_WARN2("Achieved base screen size %d x %d", (int)(screen->width), (int)screen->height);
+	
 	return 0;
 }
 
@@ -62,7 +68,6 @@ void XGetImageDriver::MainQuit()
 {
 	if (this->display) XCloseDisplay(this->display);
 	this->display = NULL;
-	this->screen = NULL;
 	this->xImageSample = NULL;
 }
 
@@ -72,12 +77,6 @@ void XGetImageDriver::Main()
 	XColor color;
 	player_camera_data_t * data;
 	
-	if (!(this->screen))
-	{
-		PLAYER_ERROR("Couldn't access screen-> Something is wrong with your XLib.");
-		return;
-	}
-	PLAYER_WARN2("Achieved base screen size %.4f x %.4f", this->screen->width , this->screen->height);
 	
 	for (;;)
 	{
@@ -92,11 +91,6 @@ void XGetImageDriver::Main()
 		ProcessMessages();
 		pthread_testcancel();
 		
-		if (!(this->screen))
-		{
-			PLAYER_ERROR("No screen->");
-			break;
-		}
 		if (!this->display)
 		{
 			PLAYER_ERROR("No display!");
@@ -126,7 +120,7 @@ void XGetImageDriver::Main()
 			break;
 		}
 		
-		data->image_count = this->xImageSample->width * this->xImageSample->height * this->screen->depths->depth/8;
+		data->image_count = this->xImageSample->width * this->xImageSample->height * this->xImageSample->depth/8;
 		assert(data->image_count > 0);
 		data->image = reinterpret_cast<unsigned char *>(malloc(data->image_count));
 		if (!(data->image))
@@ -136,27 +130,20 @@ void XGetImageDriver::Main()
 		}
 		data->width = this->xImageSample->width;
 		data->height = this->xImageSample->height;
-		data->bpp = this->screen->depths->depth;
+		data->bpp = this->xImageSample->depth;
 		data->fdiv = 0;
 		
 		switch (data->bpp)
 		{
 			case 24:
 				data->format = PLAYER_CAMERA_FORMAT_RGB888;
-				/*				for (i = 0; i < static_cast<int>(data->image_count); i += (frame->nChannels))
-				 {
-				 data->image[i] = frame->imageData[i + 2];
-				 data->image[i + 1] = frame->imageData[i + 1];
-				 data->image[i + 2] = frame->imageData[i];
-				 }
-				 */				
-				
+				// Some of the following code was borrowed for this driver from http://opencv.willowgarage.com/wiki/ximage2opencvimage
 				// Some of the following code is borrowed from http://www.roard.com/docs/cookbook/cbsu19.html ("Screen grab with X11" - by Marko Riedel, with an idea by Alexander Malmberg)
 				unsigned long rshift, rbits, gshift, gbits, bshift, bbits, rmask, gmask, bmask;
 				unsigned char colorChannel[3];
-				rmask = this->screen->root_visual->red_mask;
-                gmask = this->screen->root_visual->green_mask;
-                bmask = this->screen->root_visual->blue_mask;
+				rmask = this->xImageSample->red_mask;
+                gmask = this->xImageSample->green_mask;
+                bmask = this->xImageSample->blue_mask;
 				
 				rshift = 0;
 				rbits = 0;
@@ -216,26 +203,8 @@ void XGetImageDriver::Main()
 						data->image[index + 2] = colorChannel[0];
 						
 					}
-				}
-				
-				
+				}								
 				break;
-				/*
-				 case 8:
-				 data->format = PLAYER_CAMERA_FORMAT_MONO8;
-				 memcpy(data->image, frame->imageData, data->image_count);
-				 break;
-				 case 32:
-				 data->format = PLAYER_CAMERA_FORMAT_RGB888;
-				 for (i = 0; i < static_cast<int>(data->image_count); i += (frame->nChannels))
-				 {
-				 data->image[i] = frame->imageData[i + 2];
-				 data->image[i + 1] = frame->imageData[i + 1];
-				 data->image[i + 2] = frame->imageData[i];
-				 data->image[i + 3] = frame->imageData[i + 3];
-				 }
-				 break;
-				 */
 			default:
 				PLAYER_ERROR1("Unsupported image depth %d", data->bpp);
 				data->bpp = 0;
