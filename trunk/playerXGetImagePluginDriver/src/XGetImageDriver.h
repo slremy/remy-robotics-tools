@@ -105,7 +105,6 @@ private: virtual void Main();
 	
     // X resources
 private: Display* display;
-private: Screen* screen;
 private: XImage* xImageSample;
 	
 private: int startX;
