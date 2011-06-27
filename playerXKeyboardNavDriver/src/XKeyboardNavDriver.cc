@@ -25,8 +25,6 @@ void XKeyboardNavDriver_Register(DriverTable *table)
 XKeyboardNavDriver::XKeyboardNavDriver(ConfigFile * cf, int section)
 : ThreadedDriver(cf, section, true, PLAYER_MSGQUEUE_DEFAULT_MAXLEN)
 {
-	this->display = NULL;
-	this->screen = NULL;
 
 	this->wasd_subscriptions=0;
 	this->ulrd_subscriptions=0;
@@ -59,16 +57,17 @@ XKeyboardNavDriver::XKeyboardNavDriver(ConfigFile * cf, int section)
 
 	/*these default keycodes are were generated on osx.  
 	 Run xev on your machine to detmine your approriate values */
+	const char wasd[5]="wasd";
+	
+	this->WASD_keycodes[0] = cf->ReadTupleInt(section, "WASD_keycodes", 0, keyCodeForChar(wasd[0]));
+	this->WASD_keycodes[1] = cf->ReadTupleInt(section, "WASD_keycodes", 1, keyCodeForChar(wasd[1]));
+	this->WASD_keycodes[2] = cf->ReadTupleInt(section, "WASD_keycodes", 2, keyCodeForChar(wasd[2]));
+	this->WASD_keycodes[3] = cf->ReadTupleInt(section, "WASD_keycodes", 3, keyCodeForChar(wasd[3]));
 
-	this->WASD_keycodes[0] = cf->ReadTupleInt(section, "WASD_keycodes", 0, 21);
-	this->WASD_keycodes[1] = cf->ReadTupleInt(section, "WASD_keycodes", 1, 29);
-	this->WASD_keycodes[2] = cf->ReadTupleInt(section, "WASD_keycodes", 2, 9 );
-	this->WASD_keycodes[3] = cf->ReadTupleInt(section, "WASD_keycodes", 3, 10);
-
-	this->ULDR_keycodes[0] = cf->ReadTupleInt(section, "ULDR_keycodes", 0, 134);
-	this->ULDR_keycodes[1] = cf->ReadTupleInt(section, "ULDR_keycodes", 1, 131);
-	this->ULDR_keycodes[2] = cf->ReadTupleInt(section, "ULDR_keycodes", 2, 133);
-	this->ULDR_keycodes[3] = cf->ReadTupleInt(section, "ULDR_keycodes", 3, 132);
+	this->ULDR_keycodes[0] = cf->ReadTupleInt(section, "ULDR_keycodes", 0, K_UP);
+	this->ULDR_keycodes[1] = cf->ReadTupleInt(section, "ULDR_keycodes", 1, K_LEFT);
+	this->ULDR_keycodes[2] = cf->ReadTupleInt(section, "ULDR_keycodes", 2, K_DOWN);
+	this->ULDR_keycodes[3] = cf->ReadTupleInt(section, "ULDR_keycodes", 3, K_RIGHT);
 	WASD_status[0]=WASD_status[1]=WASD_status[2]=WASD_status[3]=false;
 	ULDR_status[0]=ULDR_status[1]=ULDR_status[2]=ULDR_status[3]=false;
 }
@@ -76,7 +75,6 @@ XKeyboardNavDriver::XKeyboardNavDriver(ConfigFile * cf, int section)
 XKeyboardNavDriver::~XKeyboardNavDriver()
 {
 	// Always clean up your mess
-	if (this->display) XCloseDisplay(this->display);
 }
 
 
@@ -123,35 +121,27 @@ int XKeyboardNavDriver::Unsubscribe(player_devaddr_t id)
 
 int XKeyboardNavDriver::MainSetup()
 {
-	if (this->display) XCloseDisplay(this->display);
-	this->display = XOpenDisplay(NULL); // Open first (-best) display
-    this->screen = DefaultScreenOfDisplay(display);
-	
-	if (!(this->display))
-	{
-		PLAYER_ERROR("Couldn't create X capture display. Something is wrong with your XLib.");
-		return -1;
-	}
 	return 0;
 }
 
 void XKeyboardNavDriver::MainQuit()
 {
-	if (this->display) XCloseDisplay(this->display);
-	this->display = NULL;
-	this->screen = NULL;
+	toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
+	toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
+	toggleKeyCode(WASD_keycodes[2], false, MOD_NONE);
+	toggleKeyCode(WASD_keycodes[3], false, MOD_NONE);
+
+	toggleKeyCode(ULDR_keycodes[0], false, MOD_NONE);
+	toggleKeyCode(ULDR_keycodes[1], false, MOD_NONE);
+	toggleKeyCode(ULDR_keycodes[2], false, MOD_NONE);
+	toggleKeyCode(ULDR_keycodes[3], false, MOD_NONE);
+	
 }
 
 void XKeyboardNavDriver::Main()
 {
 	struct timespec tspec;
-	
-	if (!(this->screen))
-	{
-		PLAYER_ERROR("Couldn't access screen-> Something is wrong with your XLib.");
-		return;
-	}
-	
+		
 	for (;;)
 	{
 		// Go to sleep for a while (this is a polling loop).
@@ -170,6 +160,10 @@ void XKeyboardNavDriver::Main()
 
 int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr * hdr, void * data)
 {
+	//Not yet checking if key is already pressed when it's supposed to be pressed.
+	//I might need to do that.
+	//My rights and lefts may also be flipped
+	
 	if(hdr->type == PLAYER_MSGTYPE_CMD)
 	{
 		float px;
@@ -184,51 +178,82 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 			position_cmd = *(player_position2d_cmd_vel_t*)data;
 			px = (float)(position_cmd.vel.px * 1e3);
 			if ( px > .5) {
-				PLAYER_WARN1("W:%d",this->WASD_keycodes[0]);
+				;//up
 				if (!WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), True, CurrentTime);
+					toggleKeyCode(WASD_keycodes[0], true, MOD_NONE);
 					WASD_status[0]=true;
 				}
-				if (WASD_status[1])
+				if (WASD_status[2])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), False, CurrentTime);
-					WASD_status[1]=false;
+					toggleKeyCode(WASD_keycodes[2], false, MOD_NONE);
+					WASD_status[2]=false;
 				}
 			}else if (px <-.5) {
-				PLAYER_WARN1("S:%d",this->WASD_keycodes[1]);
-				if (!WASD_status[1])
+				;//down
+				if (!WASD_status[2])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), True, CurrentTime);
-					WASD_status[1]=true;
+					toggleKeyCode(WASD_keycodes[2], true, MOD_NONE);
+					WASD_status[2]=true;
 				}
 				if (WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), False, CurrentTime);
+					toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
 					WASD_status[0]=false;
 				}
 			}else {
+				;//stop
 				if (WASD_status[0])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[0]), False, CurrentTime);
+					toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
 					WASD_status[0]=false;
 				}
-				if (WASD_status[1])
+				if (WASD_status[2])
 				{
-					XTestFakeButtonEvent(this->display, XKeysymToKeycode(this->display,WASD_keycodes[1]), False, CurrentTime);
-					WASD_status[1]=false;
+					toggleKeyCode(WASD_keycodes[2], false, MOD_NONE);
+					WASD_status[2]=false;
 				}
 			}
 
 			pa = (float)position_cmd.vel.pa;
 			if (pa > .5) {
-				PLAYER_WARN1("A:%d",XKeysymToKeycode(this->display,this->WASD_keycodes[2]));
 				;//left
+				if (!WASD_status[1])
+				{
+					toggleKeyCode(WASD_keycodes[1], true, MOD_NONE);
+					WASD_status[1]=true;
+				}
+				if (WASD_status[3])
+				{
+					toggleKeyCode(WASD_keycodes[3], false, MOD_NONE);
+					WASD_status[3]=false;
+				}
 			}else if (pa<-.5) {
-				PLAYER_WARN1("D:%d",XKeysymToKeycode(this->display,this->WASD_keycodes[3]));
 				;//right
+				if (!WASD_status[3])
+				{
+					toggleKeyCode(WASD_keycodes[3], true, MOD_NONE);
+					WASD_status[3]=true;
+				}
+				if (WASD_status[1])
+				{
+					toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
+					WASD_status[1]=false;
+				}
+				
 			}else {
 				;//stop
+				if (WASD_status[1])
+				{
+					toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
+					WASD_status[1]=false;
+				}
+				if (WASD_status[3])
+				{
+					toggleKeyCode(WASD_keycodes[3], false, MOD_NONE);
+					WASD_status[3]=false;
+				}
+				
 			}
 			return 0;
 		}
@@ -240,6 +265,86 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 			// get and send the latest motor command
 			player_position2d_cmd_vel_t position_cmd;
 			position_cmd = *(player_position2d_cmd_vel_t*)data;
+			px = (float)(position_cmd.vel.px * 1e3);
+			if ( px > .5) {
+				;//up
+				if (!ULDR_status[0])
+				{
+					toggleKeyCode(ULDR_keycodes[0], true, MOD_NONE);
+					ULDR_status[0]=true;
+				}
+				if (ULDR_status[2])
+				{
+					toggleKeyCode(ULDR_keycodes[2], false, MOD_NONE);
+					ULDR_status[2]=false;
+				}
+			}else if (px <-.5) {
+				;//down
+				if (!ULDR_status[2])
+				{
+					toggleKeyCode(ULDR_keycodes[2], true, MOD_NONE);
+					ULDR_status[2]=true;
+				}
+				if (ULDR_status[0])
+				{
+					toggleKeyCode(ULDR_keycodes[0], false, MOD_NONE);
+					ULDR_status[0]=false;
+				}
+			}else {
+				;//stop
+				if (ULDR_status[0])
+				{
+					toggleKeyCode(ULDR_keycodes[0], false, MOD_NONE);
+					ULDR_status[0]=false;
+				}
+				if (ULDR_status[2])
+				{
+					toggleKeyCode(ULDR_keycodes[2], false, MOD_NONE);
+					ULDR_status[2]=false;
+				}
+			}
+			
+			pa = (float)position_cmd.vel.pa;
+			if (pa > .5) {
+				;//left
+				if (!ULDR_status[1])
+				{
+					toggleKeyCode(ULDR_keycodes[1], true, MOD_NONE);
+					ULDR_status[1]=true;
+				}
+				if (ULDR_status[3])
+				{
+					toggleKeyCode(ULDR_keycodes[3], false, MOD_NONE);
+					ULDR_status[3]=false;
+				}
+			}else if (pa<-.5) {
+				;//right
+				if (!ULDR_status[3])
+				{
+					toggleKeyCode(ULDR_keycodes[3], true, MOD_NONE);
+					ULDR_status[3]=true;
+				}
+				if (ULDR_status[1])
+				{
+					toggleKeyCode(ULDR_keycodes[1], false, MOD_NONE);
+					ULDR_status[1]=false;
+				}
+				
+			}else {
+				;//stop
+				if (ULDR_status[1])
+				{
+					toggleKeyCode(ULDR_keycodes[1], false, MOD_NONE);
+					ULDR_status[1]=false;
+				}
+				if (ULDR_status[3])
+				{
+					toggleKeyCode(ULDR_keycodes[3], false, MOD_NONE);
+					ULDR_status[3]=false;
+				}
+				
+			}
+			
 			return 0;
 		}
 		else 

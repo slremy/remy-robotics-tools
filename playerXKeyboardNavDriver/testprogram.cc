@@ -13,19 +13,28 @@ int main(int argc, char **argv)
 	PlayerClient robot(gHostname, gPort);
 	Position2dProxy pp(&robot,gIndex);
   
-	for(int i = 0; i < 100; i++)
+	sleep(5);
+
+	for(int i = 0; i < 10; i++)
 	{
 		sleep(1);
 		pp.SetSpeed(1,0);
 		printf("1,0\n");
 	}
-	for(int i = 0; i < 100; i++)
+
+	pp.SetSpeed(0,0);
+	printf("0,0\n");
+sleep(5);
+	for(int i = 0; i < 10; i++)
 	{
 		sleep(1);
 		pp.SetSpeed(0,1);
 		printf("0,1\n");
 	}
  
+	pp.SetSpeed(0,0);
+	printf("0,0\n");
+sleep(5);
 	// End of program
 	return 0;
 }

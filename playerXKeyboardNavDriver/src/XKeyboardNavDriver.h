@@ -19,7 +19,7 @@
  */
 ///////////////////////////////////////////////////////////////////////////
 //
-// Desc: Xwindows screen capture driver
+// Desc: Keyboard Navigation driver
 // Author: sr
 // Date: 14 Jun 2011
 //
@@ -30,11 +30,11 @@
 /** @defgroup driver_XKeyboardNavDriver XKeyboardNavDriver
  * @brief wasd and ulrd (arrow) key streaming sink
  
- The XKeyboardNavDriver driver position2d commands and sends them to an Xwindows desktop using the xlib infrastructure.
+ The XKeyboardNavDriver driver position2d commands and sends them to a modern operating system using the autopy infrastructure.
  
  @par Compile-time dependencies
  
- - xlib
+ - autopy
  
  @par Provides
  
@@ -81,8 +81,10 @@
 
 #include <libplayercore/playercore.h>
 #include <cstring>
-// X Server includes
-#include <X11/extensions/XTest.h>
+
+extern "C"{
+	#include "keypress.h"
+}
 //---------------------------------
 
 class XKeyboardNavDriver : public ThreadedDriver
@@ -101,19 +103,15 @@ public: virtual int Subscribe(player_devaddr_t id);
 public: virtual int Unsubscribe(player_devaddr_t id);	
 
 private: virtual void Main();
-	
-    // X resources
-private: Display* display;
-private: Screen* screen;
-	
+
 private: player_devaddr_t wasd_id;
 private: player_position2d_data_t wasd;
 private: player_devaddr_t ulrd_id;
 private: player_position2d_data_t ulrd;
 private: int wasd_subscriptions;
 private: int ulrd_subscriptions;
-private: int WASD_keycodes[4];
-private: int ULDR_keycodes[4];
+private: MMKeyCode WASD_keycodes[4];
+private: MMKeyCode ULDR_keycodes[4];
 private: bool WASD_status[4];
 private: bool ULDR_status[4];
 private: int sleep_nsec;
