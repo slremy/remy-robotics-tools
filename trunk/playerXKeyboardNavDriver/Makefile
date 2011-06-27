@@ -1,10 +1,23 @@
+AUTOPYSRC = ~/code/autopy/src
+
+UNAME := $(shell uname)
+
 CFLAGS = 	-O2 -g -Wall -fmessage-length=0 -fPIC 
 
-INCLUDES = 	`pkg-config --cflags playercore` `pkg-config --cflags x11`
+INCLUDES = 	`pkg-config --cflags playercore` -I $(AUTOPYSRC) 
 
-LIBS =		`pkg-config --libs playercore` `pkg-config --libs x11` -lXtst
+LIBS =		`pkg-config --libs playercore` 
 
-OBJS =		src/XKeyboardNavDriver.o
+OBJS =		src/XKeyboardNavDriver.o $(AUTOPYSRC)/keypress.o $(AUTOPYSRC)/deadbeef_rand.o $(AUTOPYSRC)/keycode.o
+
+ifeq ($(UNAME), Linux)
+        INCLUDES += `pkg-config --cflags x11`
+        LIBS += `pkg-config --libs x11 xtst`
+endif
+
+ifeq ($(UNAME), Darwin)
+        LIBS += -framework ApplicationServices -framework Carbon
+endif
 
 TARGET =	xkeyboardnavdriver.so
 
