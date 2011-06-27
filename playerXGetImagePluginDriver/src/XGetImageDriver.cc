@@ -38,14 +38,14 @@ XGetImageDriver::XGetImageDriver(ConfigFile * cf, int section)
 XGetImageDriver::~XGetImageDriver()
 {
 	// Always clean up your mess
-	if (this->xImageSample) XGetImageDriver::DestroyImage(this->xImageSample);
-	if (this->display) XGetImageDriver::CloseDisplay(this->display);
+	XGetImageDriver::DestroyImage();
+	XGetImageDriver::CloseDisplay();
 }
 
 int XGetImageDriver::MainSetup()
 {
-	if (this->xImageSample) XGetImageDriver::DestroyImage(this->xImageSample);
-	if (this->display) XGetImageDriver::CloseDisplay(this->display);
+	XGetImageDriver::DestroyImage();
+	XGetImageDriver::CloseDisplay();
 	this->display = XGetImageDriver::OpenDisplay(); 
 	
 	if (!(this->display))
@@ -59,9 +59,9 @@ int XGetImageDriver::MainSetup()
 
 void XGetImageDriver::MainQuit()
 {
-	if (this->display) XGetImageDriver::CloseDisplay(this->display);
-	this->display = NULL;
-	this->xImageSample = NULL;
+	XGetImageDriver::DestroyImage();
+	XGetImageDriver::CloseDisplay();
+	
 }
 
 void XGetImageDriver::Main()
@@ -89,7 +89,6 @@ void XGetImageDriver::Main()
 			break;
 		}
 		
-		
 		data = reinterpret_cast<player_camera_data_t *>(malloc(sizeof(player_camera_data_t)));
 		if (!data)
 		{
@@ -98,16 +97,16 @@ void XGetImageDriver::Main()
 		}
 		
 		int ret = XGetImageDriver::CopyScreen(data);
-
+		
 		if (ret == -1) break;
 		else if (ret == 1) continue;
-
+		
 		assert(data->bpp > 0);
 		data->compression = PLAYER_CAMERA_COMPRESS_RAW;
 		this->Publish(device_addr, PLAYER_MSGTYPE_DATA, PLAYER_CAMERA_DATA_STATE, reinterpret_cast<void *>(data), 0, NULL, false);
 		// copy = false, don't dispose anything here
 		
-		XGetImageDriver::DestroyImage(this->xImageSample);
+		XGetImageDriver::DestroyImage();
 		
 		pthread_testcancel();
 	}
@@ -131,21 +130,104 @@ extern "C"
 	
 }
 
-/*
- #if defined(IS_MACOSX)
- void XGetImageDriver::DestroyImage(CGImageRef image){
- CGImageRelease(image);
- }
- #elif defined(USE_X11)
- */	void XGetImageDriver::DestroyImage(XImage* image){
-	 XDestroyImage(image);
- }
-void XGetImageDriver::CloseDisplay(Display* display){
-	XCloseDisplay(display);
+
+#if defined(IS_MACOSX)
+void XGetImageDriver::DestroyImage(){
+	if (this->xImageSample) CGImageRelease(this->xImageSample);
+	this->xImageSample = NULL;
 }
+
+void XGetImageDriver::CloseDisplay(){
+	if (this->display){
+		//CGLSetCurrentContext( NULL );
+		//CGLClearDrawable( contextObj );
+		//CGLDestroyContext( contextObj );
+		CGReleaseAllDisplays();
+	}
+	//this->display = NULL;
+}
+
+CGDirectDisplayID XGetImageDriver::OpenDisplay(){
+	return CGMainDisplayID();
+}
+
+int XGetImageDriver::CopyScreen(player_camera_data_t* screenshot){
+	this->xImageSample = CGDisplayCreateImageForRect(this->display, CGRectMake(this->startX, this->startY, this->widthX, this->heightY));
+
+	if (!this->xImageSample)
+	{
+		PLAYER_ERROR("No Image!");
+		return -1;//break
+	}
+	
+	int height=(int)CGImageGetHeight(this->xImageSample);
+	int width=(int)CGImageGetWidth(this->xImageSample);
+	int bpp=(int)CGImageGetBitsPerPixel(this->xImageSample);
+	
+	
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+	unsigned char rawData[height * width * bpp/8];
+	int bytesPerPixel = bpp/8;
+	int bytesPerRow = bytesPerPixel * width;
+	int bitsPerComponent = 8;
+	
+	CGContextRef context = CGBitmapContextCreate(rawData, width, height, bitsPerComponent, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+	
+	CGContextDrawImage(context, CGRectMake(0, 0, width, height),this->xImageSample);
+	CGContextRelease(context);
+
+	screenshot->image_count = height * width * bytesPerPixel;
+	assert(screenshot->image_count > 0);
+	screenshot->image = reinterpret_cast<unsigned char *>(malloc(screenshot->image_count));
+	if (!(screenshot->image))
+	{
+		PLAYER_ERROR("Out of memory");
+		return 1;//continue
+	}
+	screenshot->width = width;
+	screenshot->height = height;
+	screenshot->bpp = 24;	//WARNING ignoring the alpha channel and setting bpp=24!
+	screenshot->fdiv = 0;
+	screenshot->format = PLAYER_CAMERA_FORMAT_RGB888;
+
+	//copy to image
+	int red, blue, green,alpha,xx,yy;
+	int byteIndex;
+	for (xx=0 ; xx < width; xx++){
+		for (yy=0 ; yy < height ; yy++){
+			// Now your rawData contains the image data in the RGBA8888 pixel format.
+			byteIndex = (bytesPerRow * yy) + xx * bytesPerPixel;
+			red = rawData[byteIndex];
+			green = rawData[byteIndex + 1];
+			blue = rawData[byteIndex + 2];
+			alpha = rawData[byteIndex + 3];//WARNING ignoring the alpha channel and setting bpp=24!
+			
+			int index = 3*xx+3*yy*width;  //orientation switch! 
+			screenshot->image[index] = red;
+			screenshot->image[index + 1] = green;
+			screenshot->image[index + 2] = blue;
+		}
+	}
+		
+	return 0;
+}
+
+#elif defined(USE_X11)
+
+void XGetImageDriver::DestroyImage(){
+	if (this->xImageSample) XDestroyImage(this->xImageSample);
+	this->xImageSample = NULL;
+}
+
+void XGetImageDriver::CloseDisplay(){
+	if (this->display) XCloseDisplay(this->display);
+	this->display = NULL;
+}
+
 Display* XGetImageDriver::OpenDisplay(){
 	return XOpenDisplay(NULL);
 }
+
 int XGetImageDriver::CopyScreen(player_camera_data_t* screenshot){
 	this->xImageSample = XGetImage(this->display, DefaultRootWindow(this->display), this->startX, this->startY, this->widthX, this->heightY, AllPlanes, ZPixmap);
 	
@@ -249,7 +331,6 @@ int XGetImageDriver::CopyScreen(player_camera_data_t* screenshot){
 	
 }
 
-/*#elif defined(IS_WINDOWS)
- //place holder
- #endif
- */
+#elif defined(IS_WINDOWS)
+//place holder
+#endif
