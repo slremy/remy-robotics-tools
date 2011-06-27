@@ -1,4 +1,6 @@
-AUTOPYSRC = ~/code/autopy/src
+ifndef AUTOPYSRC
+$(error "Need location of autopy!  make AUTOPYSRC=/somelocation/ondisk/src")
+endif
 
 UNAME := $(shell uname)
 
