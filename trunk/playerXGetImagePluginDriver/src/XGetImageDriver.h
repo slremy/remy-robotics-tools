@@ -94,8 +94,8 @@
 
 
 #if defined(IS_MACOSX)
-//	#include <ApplicationServices/ApplicationServices.h>
-//#elif defined(USE_X11)
+	#include <ApplicationServices/ApplicationServices.h>
+#elif defined(USE_X11)
 	// X Server includes
 	#include <X11/Xlib.h>
 	#include <X11/Xutil.h>
@@ -133,20 +133,26 @@ public: virtual int ProcessMessage(QueuePointer & resp_queue,
 private: virtual void Main();
 
 #if defined(IS_MACOSX)
-//	private: void DestroyImage(CGImageRef* image);
-	//#elif defined(USE_X11)
-private: void DestroyImage(XImage* image);
-private: void CloseDisplay(Display* display);
-private: Display* OpenDisplay();
-private: int CopyScreen(player_camera_data_t* data);
-#elif defined(IS_WINDOWS)
-	//place holder
-#endif
+private: CGDirectDisplayID OpenDisplay();
+    // OSX/OpenGL resources
+private: CGDirectDisplayID display;
+private: CGImageRef xImageSample;
 	
+#elif defined(USE_X11)
+private: Display* OpenDisplay();
     // X resources
 private: Display* display;
 private: XImage* xImageSample;
 	
+#elif defined(IS_WINDOWS)
+	//place holder
+#endif
+	
+private: void DestroyImage();
+private: void CloseDisplay();
+private: int CopyScreen(player_camera_data_t* data);
+
+
 private: int startX;
 private: int startY;
 private: int widthX;

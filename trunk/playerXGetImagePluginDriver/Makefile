@@ -1,8 +1,19 @@
+UNAME := $(shell uname)
+
 CFLAGS = 	-O2 -g -Wall -fmessage-length=0 -fPIC 
 
-INCLUDES = 	`pkg-config --cflags playercore` `pkg-config --cflags x11`
+INCLUDES = 	`pkg-config --cflags playercore`
 
-LIBS =		`pkg-config --libs playercore` `pkg-config --libs x11`
+LIBS =		`pkg-config --libs playercore`  
+
+ifeq ($(UNAME), Linux)
+	INCLUDES += `pkg-config --cflags x11
+	LIBS += `pkg-config --libs x11`
+endif
+ifeq ($(UNAME), Darwin)
+	LIBS += -framework ApplicationServices
+endif
+
 
 OBJS =		src/XGetImageDriver.o
 
