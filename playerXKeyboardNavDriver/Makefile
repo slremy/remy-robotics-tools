@@ -15,6 +15,7 @@ OBJS =		src/XKeyboardNavDriver.o $(AUTOPYSRC)/keypress.o $(AUTOPYSRC)/deadbeef_r
 ifeq ($(UNAME), Linux)
         INCLUDES += `pkg-config --cflags x11`
         LIBS += `pkg-config --libs x11 xtst`
+        OBJS += $(AUTOPYSRC)/xdisplay.o
 endif
 
 ifeq ($(UNAME), Darwin)
