@@ -103,6 +103,7 @@ public: virtual int Subscribe(player_devaddr_t id);
 public: virtual int Unsubscribe(player_devaddr_t id);	
 
 private: virtual void Main();
+private: void StopAll();
 
 private: player_devaddr_t wasd_id;
 private: player_position2d_data_t wasd;

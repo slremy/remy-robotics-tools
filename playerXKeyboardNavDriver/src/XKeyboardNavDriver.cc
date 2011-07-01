@@ -126,6 +126,14 @@ int XKeyboardNavDriver::MainSetup()
 
 void XKeyboardNavDriver::MainQuit()
 {
+	XKeyboardNavDriver::StopAll();
+}
+
+void XKeyboardNavDriver::StopAll()
+{
+	WASD_status[0]=WASD_status[1]=WASD_status[2]=WASD_status[3]=false;
+	ULDR_status[0]=ULDR_status[1]=ULDR_status[2]=ULDR_status[3]=false;
+
 	toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
 	toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
 	toggleKeyCode(WASD_keycodes[2], false, MOD_NONE);
@@ -144,6 +152,7 @@ void XKeyboardNavDriver::Main()
 		
 	for (;;)
 	{
+		XKeyboardNavDriver::StopAll();
 		// Go to sleep for a while (this is a polling loop).
 		tspec.tv_sec = 0;
 		tspec.tv_nsec = this->sleep_nsec;
@@ -201,20 +210,8 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 					toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
 					WASD_status[0]=false;
 				}
-			}else {
-				;//stop
-				if (WASD_status[0])
-				{
-					toggleKeyCode(WASD_keycodes[0], false, MOD_NONE);
-					WASD_status[0]=false;
-				}
-				if (WASD_status[2])
-				{
-					toggleKeyCode(WASD_keycodes[2], false, MOD_NONE);
-					WASD_status[2]=false;
-				}
 			}
-
+			
 			pa = (float)position_cmd.vel.pa;
 			if (pa > .5) {
 				;//left
@@ -239,19 +236,6 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 				{
 					toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
 					WASD_status[1]=false;
-				}
-				
-			}else {
-				;//stop
-				if (WASD_status[1])
-				{
-					toggleKeyCode(WASD_keycodes[1], false, MOD_NONE);
-					WASD_status[1]=false;
-				}
-				if (WASD_status[3])
-				{
-					toggleKeyCode(WASD_keycodes[3], false, MOD_NONE);
-					WASD_status[3]=false;
 				}
 				
 			}
@@ -290,18 +274,6 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 					toggleKeyCode(ULDR_keycodes[0], false, MOD_NONE);
 					ULDR_status[0]=false;
 				}
-			}else {
-				;//stop
-				if (ULDR_status[0])
-				{
-					toggleKeyCode(ULDR_keycodes[0], false, MOD_NONE);
-					ULDR_status[0]=false;
-				}
-				if (ULDR_status[2])
-				{
-					toggleKeyCode(ULDR_keycodes[2], false, MOD_NONE);
-					ULDR_status[2]=false;
-				}
 			}
 			
 			pa = (float)position_cmd.vel.pa;
@@ -330,21 +302,8 @@ int XKeyboardNavDriver::ProcessMessage(QueuePointer & resp_queue, player_msghdr 
 					ULDR_status[1]=false;
 				}
 				
-			}else {
-				;//stop
-				if (ULDR_status[1])
-				{
-					toggleKeyCode(ULDR_keycodes[1], false, MOD_NONE);
-					ULDR_status[1]=false;
-				}
-				if (ULDR_status[3])
-				{
-					toggleKeyCode(ULDR_keycodes[3], false, MOD_NONE);
-					ULDR_status[3]=false;
-				}
-				
 			}
-			
+						
 			return 0;
 		}
 		else 
