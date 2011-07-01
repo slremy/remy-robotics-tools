@@ -19,7 +19,7 @@
  */
 ///////////////////////////////////////////////////////////////////////////
 //
-// Desc: Xwindows screen capture driver
+// Desc: Screen capture driver for X11 and 
 // Author: sr
 // Date: 10 Jun 2011
 //
@@ -30,11 +30,11 @@
 /** @defgroup driver_XGetImageDriver XGetImageDriver
  * @brief XGetImage streaming source
  
- The XGetImageDriver driver captures images from an Xwindows desktop using the xlib infrastructure.
+ The XGetImageDriver driver captures images from a modern operating systems' desktop.  Windows is forthcoming.
  
  @par Compile-time dependencies
  
- - xlib
+ - Player/Stage, xlib (for X11), ApplicationServices (on OSX)
  
  @par Provides
  
@@ -103,7 +103,9 @@
 	#define STRICT /* Require use of exact types. */
 	#define WIN32_LEAN_AND_MEAN 1 /* Speed up compilation. */
 	#include <windows.h>
-#elif !defined(IS_MACOSX) && !defined(USE_X11)
+#endif
+
+#if !defined(IS_MACOSX) && !defined(USE_X11)
 	#error "Sorry, this platform isn't supported yet!"
 #endif
 
