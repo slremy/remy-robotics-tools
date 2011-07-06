@@ -166,17 +166,23 @@ int XGetImageDriver::CopyScreen(player_camera_data_t* screenshot){
 	
 	
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-	unsigned char rawData[height * width * bpp/8];
+	unsigned char rawData[height * width * bpp]; //unsure why this isn't in bytes
 	int bytesPerPixel = bpp/8;
 	int bytesPerRow = bytesPerPixel * width;
 	int bitsPerComponent = 8;
 	
 	CGContextRef context = CGBitmapContextCreate(rawData, width, height, bitsPerComponent, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+
+	if (!context)
+	{
+		PLAYER_ERROR("Context could not be created!");
+		return -1;//break
+	}
 	
 	CGContextDrawImage(context, CGRectMake(0, 0, width, height),this->xImageSample);
 	CGContextRelease(context);
 
-	screenshot->image_count = height * width * bytesPerPixel;
+	screenshot->image_count = height * width * (bpp/8)-1; //WARNING ignoring the alpha channel and assuming 3 channels!
 	assert(screenshot->image_count > 0);
 	screenshot->image = reinterpret_cast<unsigned char *>(malloc(screenshot->image_count));
 	if (!(screenshot->image))
