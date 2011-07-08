@@ -1,3 +1,5 @@
+UNAME := $(shell uname)
+UNAME=Linux
 CFLAGS = 	-O2 -g -Wall -fmessage-length=0 -fPIC 
 
 INCLUDES = 	-I ../src
@@ -7,6 +9,15 @@ LIBS =		-L../ -lowimotorcontroller
 OBJS =		testarm.o
 
 TARGET =	testarm
+
+ifeq ($(UNAME), Linux)
+	INCLUDES += `pkg-config --cflags libusb` 
+	LIBS += `pkg-config --libs libusb`
+endif
+ifeq ($(UNAME), Darwin)
+	LIBS += -framework IOKit -framework Carbon
+endif
+
 
 %.o: %.cpp
 	@echo 'Building file: $<'
