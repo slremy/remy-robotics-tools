@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include <usb.h>
+#include "usbwrap.h"
 #include <stdint.h>
 
 
@@ -30,11 +30,9 @@ class usbowiarm{
 	private: 
 		int ctrl;
 		bool led;
-		struct usb_dev_handle *handle;
 		char number_motors;
 		char packetsize;
-	protected: 
-		bool is_owiarm(struct usb_device *device);
+		bool connected;
 	public: 
 		usbowiarm(int armnumber);
 		~usbowiarm();

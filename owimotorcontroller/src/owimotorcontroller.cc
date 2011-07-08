@@ -21,77 +21,31 @@ THE SOFTWARE.
 */
 
 #include "owimotorcontroller.h"
-#include <stdio.h>
-#include <unistd.h>
+#include <iostream>
+#include <ctime>
+
 
 usbowiarm::usbowiarm(int armnumber){
-	this->handle = NULL;
-
-	struct usb_bus *busses;
-	struct usb_device *found = NULL;
-	char owiarm_cnt = 0;
-	int err = 0;
-
-	usb_init();
-	usb_find_busses();
-	usb_find_devices();
-	busses = usb_get_busses();
-
-	if (busses == NULL)
-	   fprintf(stderr, "failed to get a valid device list\n");
-	else{
-
-		struct usb_bus *bus;
-		for (bus = busses; bus; bus = bus->next) {
-			struct usb_device *dev;
-			for (dev = bus->devices; dev; dev = dev->next) {
-				/* Check if this device is an owi arm */
-				if (is_owiarm(dev)) {
-					if (owiarm_cnt == (char)armnumber){
-						found = dev;
-						break;
-					}
-					owiarm_cnt++;
-				}
-			}
-		}
-
-		if (found) {
-		   this->handle = usb_open(found);
-		   if (this->handle == NULL)
-			fprintf(stderr, "failed to get open the device");
-                   if (usb_set_configuration(this->handle, 1)<0)
-			fprintf(stderr, "failed to set device device config to 1");
-		   if (usb_claim_interface(this->handle, 0) < 0)
-			fprintf(stderr, "failed to claim device");
-
-		}else{
-			fprintf(stderr, "failed to find device %i",(int)armnumber);
-		}
-		//usb_free_device_list(list, 1);
-	}
-	//ensure motors and LED are off upon initialization
-	halt_motors();
+	this->connected = false;
 	packetsize = 3;
 	number_motors = 5;
+	int ret=open_device(0x1267, 0x0, armnumber);
+	if (ret)
+		fprintf(stderr, "failed to open device.\n");
+	else
+		this->connected = true;
+	//ensure motors and LED are off upon initialization
+	halt_motors();
 }
 
 usbowiarm::~usbowiarm(){
-	if (this->handle){
+	if (this->connected){
 		halt_motors();
-		setup_LEDOFF();set_control();
-		usb_release_interface(this->handle, 0);
-		usb_close(this->handle);
+		setup_LEDOFF();
+		set_control();
+		close_device();
 	}
 }
-
-bool usbowiarm::is_owiarm(struct usb_device *device)
-{
-	if (( device->descriptor.idProduct== 0x0 ) && (device->descriptor.idVendor== 0x1267 ))
-		return true;
-	return false;
-}
-
 
 /** stop the motors from moving */
 void usbowiarm::halt_motors()
@@ -103,13 +57,13 @@ void usbowiarm::halt_motors()
 /** actually issue the control to the motor controller */
 void usbowiarm::set_control()
 {
-	uint8_t packet[packetsize];
+	char packet[packetsize];
 
 	packet[0] = ctrl & 0xff;
 	packet[1] = (ctrl & 0xff00) >> 8;
 	packet[2] = (ctrl & 0xff0000) >> 16;
-	if(this->handle)
-		usb_control_msg(this->handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE,6, 0x100, 0, (char *)packet, 3, 0);
+	if(this->connected)
+		write_msg(packet, packetsize);
 	else
 		fprintf(stderr, "Would have liked to send the arm %x\n",ctrl);
 }
@@ -159,29 +113,40 @@ void usbowiarm::setup_motoroff(char i)
 
 void usbowiarm::test()
 {
+	int millisec = 100; // length of time to sleep, in miliseconds
+	struct timespec req = {0};
+	req.tv_sec = 1;
+	req.tv_nsec = millisec * 1000000L;
+	
+	
 	fprintf(stderr, "beginning test\n");
-//	for (char i = 0; i < number_motors; i++){
-//		setup_motorreverse(i);
-//	}
-//	set_control();
-//	fprintf(stderr, " the above was the result of all motors reverse\n");
+	for (char i = 0; i < 10; i++){
+		setup_LEDTOGGLE();
+		//halt_motors();
+		set_control();
+		nanosleep(&req, (struct timespec *)NULL);
+		fprintf(stderr, "next step in test\n");
+	}
+	fprintf(stderr, " the above was the result toggling the light 10 times\n");
+	return;
+	
 	for (char i = 0; i < number_motors; i++){
 		setup_motoroff(number_motors-i-1);
 		set_control();
-		usleep(30000);
+		nanosleep(&req, (struct timespec *)NULL);
 	}
 	fprintf(stderr, " the above was incrementally each motor turned off\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorforward(i);
 		set_control();
-		usleep(30000);
+		nanosleep(&req, (struct timespec *)NULL);
 		halt_motors();
 	}		
 	fprintf(stderr, " the above was each motor incrementally turned on\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorreverse(i);
 		set_control();
-		usleep(30000);
+		nanosleep(&req, (struct timespec *)NULL);
 		halt_motors();
 	}
 	fprintf(stderr, " the above was incrementally each motor turned in reverse\n");
