@@ -17,9 +17,9 @@ ifeq ($(UNAME), Darwin)
 endif
 
 
-OBJS =		src/owimotorcontroller.o src/usbwrap.o
+OBJS =		src/owimotorcontroller.o #src/usbwrap.o
 
-TARGET =	libowimotorcontroller.so
+TARGET =	libowimotorcontroller.a
 
 .PHONY: $(examples_dir)
 
@@ -46,7 +46,8 @@ TARGET =	libowimotorcontroller.so
 
 $(TARGET):	$(OBJS)
 	@echo 'Linking File: $(TARGET)'
-	$(CXX) -shared -o $(TARGET) $(OBJS) $(LIBS)
+	#$(CXX) -shared -o $(TARGET) $(OBJS) $(LIBS)
+	ar rcs $(TARGET) $(OBJS)
 	@echo 'Finished Linking: $(TARGET)'
 
 all:	$(TARGET) $(examples_dir)
