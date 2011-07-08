@@ -8,16 +8,17 @@ INCLUDES =
 
 LIBS =		  
 
+OBJS =		src/owimotorcontroller.o
+
 ifeq ($(UNAME), Linux)
 	INCLUDES += `pkg-config --cflags libusb` 
+	OBJS += src/usbwrap_libusb.o
 	LIBS += `pkg-config --libs libusb`
 endif
 ifeq ($(UNAME), Darwin)
+	OBJS += src/usbwrap_iokit.o
 	LIBS += -framework IOKit -framework Carbon
 endif
-
-
-OBJS =		src/owimotorcontroller.o #src/usbwrap.o
 
 TARGET =	libowimotorcontroller.a
 
