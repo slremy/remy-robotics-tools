@@ -1,5 +1,5 @@
 UNAME := $(shell uname)
-UNAME=Linux
+
 CFLAGS = 	-O2 -g -Wall -fmessage-length=0 -fPIC 
 
 INCLUDES = 	-I ../src

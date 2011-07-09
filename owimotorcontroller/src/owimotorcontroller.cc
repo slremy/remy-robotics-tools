@@ -31,7 +31,7 @@ usbowiarm::usbowiarm(int armnumber){
 	number_motors = 5;
 	int ret=open_device(0x1267, 0x0, armnumber);
 	if (ret)
-		fprintf(stderr, "failed to open device.\n");
+		fprintf(stderr, "usbowiarm::Failed to open device.\n");
 	else
 		this->connected = true;
 	//ensure motors and LED are off upon initialization
@@ -65,7 +65,7 @@ void usbowiarm::set_control()
 	if(this->connected)
 		write_msg(packet, packetsize);
 	else
-		fprintf(stderr, "Would have liked to send the arm %x\n",ctrl);
+		fprintf(stderr, "usbowiarm::Would have liked to send the arm %x\n",ctrl);
 }
 
 /** return the last command issued to the motor controller*/
@@ -119,7 +119,7 @@ void usbowiarm::test()
 	req.tv_nsec = millisec * 1000000L;
 	
 	
-	fprintf(stderr, "beginning test\n");
+	fprintf(stderr, "usbowiarm::beginning test\n");
 	for (char i = 0; i < 10; i++){
 		setup_LEDTOGGLE();
 		//halt_motors();
@@ -127,7 +127,7 @@ void usbowiarm::test()
 		nanosleep(&req, (struct timespec *)NULL);
 		fprintf(stderr, "next step in test\n");
 	}
-	fprintf(stderr, " the above was the result toggling the light 10 times\n");
+	fprintf(stderr, " usbowiarm::the above was the result toggling the light 10 times\n");
 	return;
 	
 	for (char i = 0; i < number_motors; i++){
@@ -135,20 +135,20 @@ void usbowiarm::test()
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);
 	}
-	fprintf(stderr, " the above was incrementally each motor turned off\n");
+	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned off\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorforward(i);
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);
 		halt_motors();
 	}		
-	fprintf(stderr, " the above was each motor incrementally turned on\n");
+	fprintf(stderr, " usbowiarm::the above was each motor incrementally turned on\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorreverse(i);
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);
 		halt_motors();
 	}
-	fprintf(stderr, " the above was incrementally each motor turned in reverse\n");
+	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned in reverse\n");
 }
 
