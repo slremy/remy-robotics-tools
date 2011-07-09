@@ -19,8 +19,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
-/* Inspired by the modified approach for the LUFA HID Bootloader by Dean Camera
+/*
+ To actually recognize the arm the HID were avoided and the IOKit libs engaged.
+ Insight from http://dgwilson.wordpress.com/2007/02/02/usb-missile-launcher-14e-release/
+ as well as http://developer.apple.com/library/mac/#documentation/DeviceDrivers/Conceptual/USBBook/USBDeviceInterfaces/USBDevInterfaces.html#//apple_ref/doc/uid/TP40002645-TPXREF101
+ and libusb project.
+ */
+/* Historically inspired by the modified approach for the LUFA HID Bootloader by Dean Camera
  *           http://www.lufa-lib.org
  *
  *   THIS MODIFIED VERSION IS UNSUPPORTED BY PJRC.
@@ -34,156 +39,151 @@
  */
 
 #include "usbwrap.h"
-// http://developer.apple.com/technotes/tn2007/tn2187.html
+
+#include <mach/mach.h>
+#include <Carbon/Carbon.h>
+#include <CoreFoundation/CFNumber.h>
+
 #include <IOKit/IOKitLib.h>
-#include <IOKit/hid/IOHIDLib.h>
-#include <IOKit/hid/IOHIDDevice.h>
+#include <IOKit/IOCFPlugIn.h>
+#include <IOKit/usb/IOUSBLib.h>
 
 
-struct usb_list_struct {
-	IOHIDDeviceRef ref;
-	int pid;
-	int vid;
-	struct usb_list_struct *next;
-};
-
-static struct usb_list_struct *usb_list=NULL;
-
-static IOHIDManagerRef hid_manager=NULL;
-
-void attach_callback(void *context, IOReturn r, void *hid_mgr, IOHIDDeviceRef dev)
-{
-	CFTypeRef type;
-	struct usb_list_struct *n, *p;
-	int32_t pid, vid;
-	
-	if (!dev) return;
-	type = IOHIDDeviceGetProperty(dev, CFSTR(kIOHIDVendorIDKey));
-	if (!type || CFGetTypeID(type) != CFNumberGetTypeID()) return;
-	if (!CFNumberGetValue((CFNumberRef)type, kCFNumberSInt32Type, &vid)) return;
-	type = IOHIDDeviceGetProperty(dev, CFSTR(kIOHIDProductIDKey));
-	if (!type || CFGetTypeID(type) != CFNumberGetTypeID()) return;
-	if (!CFNumberGetValue((CFNumberRef)type, kCFNumberSInt32Type, &pid)) return;
-	n = (struct usb_list_struct *)malloc(sizeof(struct usb_list_struct));
-	if (!n) return;
-	//printf("attach callback: vid=%04X, pid=%04X\n", vid, pid);
-	n->ref = dev;
-	n->vid = vid;
-	n->pid = pid;
-	n->next = NULL;
-	if (usb_list == NULL) {
-		usb_list = n;
-	} else {
-		for (p = usb_list; p->next; p = p->next) ;
-		p->next = n;
-	}
-}
-
-void detach_callback(void *context, IOReturn r, void *hid_mgr, IOHIDDeviceRef dev)
-{
-	struct usb_list_struct *p, *tmp, *prev=NULL;
-	
-	p = usb_list;
-	while (p) {
-		if (p->ref == dev) {
-			if (prev) {
-				prev->next = p->next;
-			} else {
-				usb_list = p->next;
-			}
-			tmp = p;
-			p = p->next;
-			free(tmp);
-		} else {
-			prev = p;
-			p = p->next;
-		}
-	}
-}
-
-void init_hid_manager(void)
-{
-	CFMutableDictionaryRef dict;
-	IOReturn ret;
-	
-	if (hid_manager) return;
-	hid_manager = IOHIDManagerCreate(kCFAllocatorDefault, kIOHIDOptionsTypeNone);
-	if (hid_manager == NULL || CFGetTypeID(hid_manager) != IOHIDManagerGetTypeID()) {
-		if (hid_manager) CFRelease(hid_manager);
-		fprintf(stderr, "no HID Manager - maybe this is a pre-Leopard (10.5) system?\n");
-		return;
-	}
-	dict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-									 &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-	if (!dict) return;
-	IOHIDManagerSetDeviceMatching(hid_manager, dict);
-	CFRelease(dict);
-	IOHIDManagerScheduleWithRunLoop(hid_manager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-	IOHIDManagerRegisterDeviceMatchingCallback(hid_manager, attach_callback, NULL);
-	IOHIDManagerRegisterDeviceRemovalCallback(hid_manager, detach_callback, NULL);
-	ret = IOHIDManagerOpen(hid_manager, kIOHIDOptionsTypeNone);
-	if (ret != kIOReturnSuccess) {
-		IOHIDManagerUnscheduleFromRunLoop(hid_manager,
-										  CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-		CFRelease(hid_manager);
-		fprintf(stderr, "Error opening HID Manager");
-	}
-}
-
-static void do_run_loop(void)
-{
-	while (CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0, true) == kCFRunLoopRunHandledSource) ;
-}
-
-static IOHIDDeviceRef iokit_deviceref = NULL;
+static IOUSBDeviceInterface** iokit_deviceinterface = NULL;
 
 int write_msg(char* message, char packetsize){
 	IOReturn ret;
 	
-	if (!iokit_deviceref) return 0;
-	ret = IOHIDDeviceSetReport(iokit_deviceref,
-							   kIOHIDReportTypeOutput, 0, (uint8_t *)message, packetsize);
-	return (ret == kIOReturnSuccess ? 1 : 0);
+	IOUSBDevRequest urequest;
+	bzero(&urequest, sizeof(urequest));
+	
+	urequest.bmRequestType =	(0x02 << 5);
+	urequest.bRequest =			6;
+	urequest.wValue =			0x100;
+	urequest.wIndex =			0;
+	urequest.wLength =			packetsize;
+	urequest.pData =			message;
+	
+	ret = (*iokit_deviceinterface)->DeviceRequest(iokit_deviceinterface, &urequest);
+	return (ret != kIOReturnSuccess) ? -1 : urequest.wLenDone; /* Bytes transfered is stored in the wLenDone field*/
 }
 
-void close_device()
-{
-	if (!iokit_deviceref) return;
-	
-	struct usb_list_struct *p;
-	
-	do_run_loop();
-	for (p = usb_list; p; p = p->next) {
-		if (p->ref == iokit_deviceref) {
-			IOHIDDeviceClose(iokit_deviceref, kIOHIDOptionsTypeNone);
-			return;
-		}
+void close_device(){
+	if (iokit_deviceinterface && *iokit_deviceinterface){
+		(*iokit_deviceinterface)->USBDeviceClose(iokit_deviceinterface);
+		(*iokit_deviceinterface)->Release(iokit_deviceinterface);
 	}
+	iokit_deviceinterface = NULL;
+	
+	return;
 }
 
 int open_device(int vid, int pid, int armindex){
-	
 	close_device();
 	
 	char owiarm_cnt = 0;
-	struct usb_list_struct *p;
-	IOReturn ret = kIOReturnError;
+	Boolean found;
+	mach_port_t 	masterPort = 0;
+	kern_return_t			err;
+	CFMutableDictionaryRef 	matchingDictionary = 0;
+	CFNumberRef				numberRef;
+	io_iterator_t			iterator = 0;
+	io_service_t			usbDeviceRef;
+	IOCFPlugInInterface				**iodev = NULL;
+	SInt32							score;
 	
-	init_hid_manager();
-	do_run_loop();
-	for (p = usb_list; p; p = p->next) {
-		printf("found %d %d\n", p->vid, p->pid);
-		if (p->vid == vid && p->pid == pid) {
-			if (owiarm_cnt == (char)armindex){
-				ret = IOHIDDeviceOpen(p->ref, kIOHIDOptionsTypeNone);
-				if (ret == kIOReturnSuccess) iokit_deviceref = p->ref;
-
-				break;
+	found = false;
+	err = IOMasterPort(MACH_PORT_NULL, &masterPort);				
+	if (err)
+		printf("Could not create master port, err = %08x\n", err);
+	else {
+		matchingDictionary = IOServiceMatching(kIOUSBDeviceClassName);	// requires <IOKit/usb/IOUSBLib.h>
+		if (!matchingDictionary)
+			printf("Could not create matching dictionary\n");
+		else {
+			numberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &vid);
+			if (!numberRef)
+				printf("Could not create CFNumberRef for vendor\n");
+			else {
+				
+				CFDictionaryAddValue(matchingDictionary, CFSTR(kUSBVendorID), numberRef);
+				CFRelease(numberRef);
+				numberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &pid);
+				if (!numberRef) {
+					printf("Could not create CFNumberRef for product\n");
+				}else{
+					
+					//based on the pid and vid, generate list of matching devices and place in the iterator
+					CFDictionaryAddValue(matchingDictionary, CFSTR(kUSBProductID), numberRef);
+					CFRelease(numberRef);
+					
+					err = IOServiceGetMatchingServices(masterPort, matchingDictionary, &iterator);
+					matchingDictionary = 0;			// this was consumed by the above call
+					
+					//from the list of matching devices, find the right one and set found=>true if so.
+					while ((usbDeviceRef = IOIteratorNext(iterator))) {
+						if (owiarm_cnt == (char)armindex){
+							found = true;
+							break;
+						}
+						owiarm_cnt++;				
+					}
+					IOObjectRelease(iterator);
+					
+					//Based on preliminary found signal.  If the device cannot be opened this will be set to false!
+					if (found)
+					{						
+						//Create an intermediate plug-in using the IOCreatePlugInInterfaceForService function
+						err = IOCreatePlugInInterfaceForService(usbDeviceRef, kIOUSBDeviceUserClientTypeID, kIOCFPlugInInterfaceID, &iodev, &score);
+						
+						//Release the device object after getting the intermediate plug-in
+						IOObjectRelease(usbDeviceRef);
+						
+						if (err || !iodev){
+							printf("Unable to create plugin. ret = %08x, iodev = %p\n", err, iodev);
+							found = false;
+						}
+						else {
+							//Create the device interface using the QueryInterface function
+							err = (*iodev)->QueryInterface(iodev, 
+														   CFUUIDGetUUIDBytes(kIOUSBDeviceInterfaceID), 
+														   (LPVOID *) &iokit_deviceinterface);
+							//Don’t need the intermediate plug-in after device interface is created
+							(*iodev)->Release(iodev);
+							
+							if (err || !iokit_deviceinterface){
+								printf("Unable to create a device interface. ret = %08x\n", err);
+								found = false;
+							} else {
+								err = (*iokit_deviceinterface)->USBDeviceOpen(iokit_deviceinterface);
+								if (err){
+									printf("Unable to open device. ret = %08x\n", err);
+									found = false;
+								}else{
+									// Double checking that this is really the right device
+									UInt16 temppid, tempvid;
+									(*iokit_deviceinterface)->GetDeviceProduct(iokit_deviceinterface,&temppid);
+									(*iokit_deviceinterface)->GetDeviceVendor(iokit_deviceinterface,&tempvid);
+									if ( temppid != pid || tempvid != vid)
+										found = false;
+									else
+										found = true;
+									
+								}
+							}
+						}
+					}
+					else
+					{
+						printf("Failed to find device %i\n",(int)armindex);
+					}
+					IOObjectRelease(usbDeviceRef);			// no longer need this reference
+				}
 			}
-			owiarm_cnt++;			
 		}
+		mach_port_deallocate(mach_task_self(), masterPort);
 	}
-	return (ret == kIOReturnSuccess ? 0 : 1);
+	return (found == true ? 0 : 1);
 }
 
 
