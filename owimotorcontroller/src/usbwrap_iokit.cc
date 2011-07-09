@@ -74,11 +74,10 @@ void close_device(){
 		(*iokit_deviceinterface)->Release(iokit_deviceinterface);
 	}
 	iokit_deviceinterface = NULL;
-	
-	return;
 }
 
 int open_device(int vid, int pid, int armindex){
+	
 	close_device();
 	
 	char owiarm_cnt = 0;
@@ -185,5 +184,4 @@ int open_device(int vid, int pid, int armindex){
 	}
 	return (found == true ? 0 : 1);
 }
-
 
