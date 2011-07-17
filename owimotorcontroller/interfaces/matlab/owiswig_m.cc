@@ -1,6 +1,6 @@
 //Code inspired by example of the playermex project and matlabcentral posts by O. Woodford (8 Jun, 2010)
 #include "mex.h"
-#include "owimotorcontroller.h"
+#include "owimotorcontroller.hpp"
 #include <string.h>
 #include "class_handle.h"
 
@@ -39,8 +39,7 @@ void mexFunction
     if (!strcmp(funName, "create_arm"))
         create_arm(nlhs, plhs, nrhs, prhs);
     else if (!strcmp(funName, "destroy_arm"))
-        destroy_arm(nlhs, plhs, nrhs, prhs);
-    else if (!strcmp(funName, "halt_motors"))
+        destroy_arm(nlhs, plhs, nrhs, prhs);    else if (!strcmp(funName, "halt_motors"))
         halt_motors(nlhs, plhs, nrhs, prhs);
     else if (!strcmp(funName, "set_control"))
         set_control(nlhs, plhs, nrhs, prhs);
@@ -78,7 +77,7 @@ void create_arm
         mexErrMsgTxt("Not enough or bad input arguments");
 
     armid = mxGetScalar(prhs[1]);
-    class_handle< usbowiarm > *arm = new class_handle< usbowiarm >(0);
+    class_handle< usbowiarm > *arm = new class_handle< usbowiarm >(armid);
     plhs[0]=convertPtr2Mat(arm);
 }
 

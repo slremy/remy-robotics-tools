@@ -20,19 +20,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "usbwrap.h"
-
+#include "owimotorcontroller.h"
 
 //this is a speed controlled arm, where the speeds are hopefully constant for each joint, and consistent between calls and generally unknown.
-void arm_open(int armnumber);
-void arm_close();
-void halt_motors();
-void set_control();
-int get_control();
-void setup_LEDON();
-void setup_LEDOFF();
-void setup_LEDTOGGLE();
-void setup_motorforward(char i);
-void setup_motorreverse(char i);
-void setup_motoroff(char i);
-void test();
+class usbowiarm{
+
+	private: 
+	public: 
+		usbowiarm(int armnumber){
+			::arm_open(armnumber);
+		}
+		~usbowiarm(){
+			::arm_close();
+		}
+		void halt_motors()				{ return ::halt_motors();}
+		void set_control()				{ return ::set_control();}
+		int  get_control()				{ return ::get_control();}
+		void setup_LEDON()				{ return ::setup_LEDON();}
+		void setup_LEDOFF()				{ return ::setup_LEDOFF();}
+		void setup_LEDTOGGLE()			{ return ::setup_LEDTOGGLE();}
+		void setup_motorforward(char i)	{ return ::setup_motorforward(i);}
+		void setup_motorreverse(char i)	{ return ::setup_motorreverse(i);}
+		void setup_motoroff(char i)		{ return ::setup_motoroff(i);}
+		void test()						{ return ::test();}
+};
