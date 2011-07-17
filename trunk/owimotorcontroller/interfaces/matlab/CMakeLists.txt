@@ -19,13 +19,25 @@ IF(MATLAB_INCLUDE_DIR)
 	else()
 		set(MEXEXT "mex")
 	endif()
+      IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	FIND_LIBRARY(CARBON_LIBRARY Carbon)
+	FIND_LIBRARY(IOKIT_LIBRARY IOKit)
+	MARK_AS_ADVANCED (CARBON_LIBRARY IOKIT_LIBRARY)
+	SET(EXTRA_LIBS ${CARBON_LIBRARY} ${IOKIT_LIBRARY})
+	SET(EXTRA_SRC ${CMAKE_SOURCE_DIR}/src/usbwrap_iokit.cc)
+      ELSE (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	find_package(USB REQUIRED)
+	include_directories(${USB_INCLUDE_DIRS})
+	SET(EXTRA_LIBS ${USB_LIBRARIES})
+	SET(EXTRA_SRC  ${CMAKE_SOURCE_DIR}/src/usbwrap_libusb.cc)
+      ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
       SET(src "${CMAKE_SOURCE_DIR}/interfaces/matlab/usbowiarm.m")
       SET(tgt "${CMAKE_BINARY_DIR}/interfaces/matlab/usbowiarm.m")
       execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${src} ${tgt})
 
-	ADD_LIBRARY(owiswig_m MODULE owiswig_m.cc)
-	TARGET_LINK_LIBRARIES(owiswig_m ${MATLAB_LIBRARIES} ${USB_LIBRARIES} owimotorcontroller)
+	ADD_LIBRARY(owiswig_m MODULE owiswig_m.cc ${EXTRA_LIBS})
+	TARGET_LINK_LIBRARIES(owiswig_m ${MATLAB_LIBRARIES} ${EXTRA_LIBS} owimotorcontroller)
 	set_target_properties(owiswig_m PROPERTIES
 		PREFIX ""
 		SUFFIX  ".${MEXEXT}"

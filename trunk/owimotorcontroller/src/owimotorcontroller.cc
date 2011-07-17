@@ -21,25 +21,31 @@ THE SOFTWARE.
 */
 
 #include "owimotorcontroller.h"
-#include <iostream>
-#include <ctime>
+#include <stdio.h>
+#include <stdint.h>
+#include <time.h>
+
+int ctrl;
+char number_motors;
+char packetsize;
+int connected;
 
 
-usbowiarm::usbowiarm(int armnumber){
-	this->connected = false;
-	this->packetsize = 3;
-	this->number_motors = 5;
+void arm_open(int armnumber){
+	connected = 0;
+	packetsize = 3;
+	number_motors = 5;
 	int ret=open_device(0x1267, 0x0, armnumber);
 	if (ret)
 		fprintf(stderr, "usbowiarm::Failed to open device.\n");
 	else
-		this->connected = true;
+		connected = 1;
 	//ensure motors and LED are off upon initialization
 	halt_motors();
 }
 
-usbowiarm::~usbowiarm(){
-	if (this->connected){
+void arm_close(){
+	if (connected){
 		halt_motors();
 		setup_LEDOFF();
 		set_control();
@@ -48,70 +54,70 @@ usbowiarm::~usbowiarm(){
 }
 
 /** stop the motors from moving */
-void usbowiarm::halt_motors()
+void   halt_motors()
 {
-	this->ctrl = 0;
+	ctrl = 0;
 	set_control();
 }
 
 /** actually issue the control to the motor controller */
-void usbowiarm::set_control()
+void   set_control()
 {
-	char packet[this->packetsize];
+	char packet[packetsize];
 
-	packet[0] = this->ctrl & 0xff;
-	packet[1] = (this->ctrl & 0xff00) >> 8;
-	packet[2] = (this->ctrl & 0xff0000) >> 16;
-	if(this->connected)
+	packet[0] = ctrl & 0xff;
+	packet[1] = (ctrl & 0xff00) >> 8;
+	packet[2] = (ctrl & 0xff0000) >> 16;
+	if(connected)
 		write_msg(packet, packetsize);
 	else
 		fprintf(stderr, "usbowiarm::Would have liked to send the arm %x\n",ctrl);
 }
 
 /** return the last command issued to the motor controller*/
-int usbowiarm::get_control()
+int   get_control()
 {
-    return this->ctrl;
+    return ctrl;
 }
 
 
-void usbowiarm::setup_LEDON()
+void   setup_LEDON()
 {
-	this->ctrl |= 0xff<<16;//turn high bytes on
+	ctrl |= 0xff<<16;//turn high bytes on
 }
 
-void usbowiarm::setup_LEDOFF()
+void   setup_LEDOFF()
 {
-	this->ctrl &= ~(0xff<<16);  //turn high bytes off
+	ctrl &= ~(0xff<<16);  //turn high bytes off
 }
 
-void usbowiarm::setup_LEDTOGGLE()
+void   setup_LEDTOGGLE()
 {
-	this->ctrl ^= 0xff<<16;//toggle high bytes
+	ctrl ^= 0xff<<16;//toggle high bytes
 }
 
-void usbowiarm::setup_motorforward(char i)
+void   setup_motorforward(char i)
 {
 	//turn low bit on and high bit off
 	if (i < number_motors)
-		this->ctrl |= (1 << (i<<1));		//this->ctrl |= 1 << (2*i); //might be more readable
+		ctrl |= (1 << (i<<1));		//ctrl |= 1 << (2*i); //might be more readable
 }
 
-void usbowiarm::setup_motorreverse(char i)
+void   setup_motorreverse(char i)
 {
 	//turn low bit off and high bit on
 	if (i < number_motors)
-		this->ctrl |= (2 << (i<<1));
+		ctrl |= (2 << (i<<1));
 }
 
-void usbowiarm::setup_motoroff(char i)
+void   setup_motoroff(char i)
 {
 	//turn both bits off
 	if (i < number_motors)
-		this->ctrl &= ~(3 << (i<<1));
+		ctrl &= ~(3 << (i<<1));
 }
 
-void usbowiarm::test()
+void   test()
 {
 	int millisec = 100; // length of time to sleep, in miliseconds
 	struct timespec req = {0};
@@ -130,20 +136,20 @@ void usbowiarm::test()
 	fprintf(stderr, " usbowiarm::the above was the result toggling the light 10 times\n");
 	return;
 	
-	for (char i = 0; i < this->number_motors; i++){
+	for (char i = 0; i < number_motors; i++){
 		setup_motoroff(number_motors-i-1);
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);
 	}
 	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned off\n");
-	for (char i = 0; i < this->number_motors; i++){
+	for (char i = 0; i < number_motors; i++){
 		setup_motorforward(i);
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);
 		halt_motors();
 	}		
 	fprintf(stderr, " usbowiarm::the above was each motor incrementally turned on\n");
-	for (char i = 0; i < this->number_motors; i++){
+	for (char i = 0; i < number_motors; i++){
 		setup_motorreverse(i);
 		set_control();
 		nanosleep(&req, (struct timespec *)NULL);

@@ -1,4 +1,4 @@
-#include "owimotorcontroller.h"
+#include "owimotorcontroller.hpp"
 
 int main(){
 	usbowiarm arm(0);

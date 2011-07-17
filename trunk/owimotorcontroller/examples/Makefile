@@ -11,6 +11,11 @@ OBJS =		testarm.o
 TARGET =	testarm
 
 ifeq ($(UNAME), Linux)
+	LIBUSB = $(shell pkg-config --cflags libusb --print-errors)
+#Check to see if pkg-config knew where libusb was stored
+ifeq (,$(findstring I,$(LIBUSB)))
+$(error "Unable to find libusb")
+endif
 	INCLUDES += `pkg-config --cflags libusb` 
 	LIBS += `pkg-config --libs libusb`
 endif
