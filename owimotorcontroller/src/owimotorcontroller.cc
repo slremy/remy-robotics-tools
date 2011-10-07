@@ -22,12 +22,13 @@ THE SOFTWARE.
 
 #include "owimotorcontroller.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
 
 int ctrl;
-const char number_motors;
-const char packetsize;
+char number_motors;
+char packetsize;
 int connected;
 
 
@@ -63,7 +64,8 @@ void   halt_motors()
 /** actually issue the control to the motor controller */
 void   set_control()
 {
-	char packet[packetsize];
+	char *packet;
+  packet = (char *)malloc(packetsize*sizeof(char));
 
 	packet[0] = ctrl & 0xff;
 	packet[1] = (ctrl & 0xff00) >> 8;
