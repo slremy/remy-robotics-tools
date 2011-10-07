@@ -26,8 +26,8 @@ THE SOFTWARE.
 #include <time.h>
 
 int ctrl;
-char number_motors;
-char packetsize;
+const char number_motors;
+const char packetsize;
 int connected;
 
 
