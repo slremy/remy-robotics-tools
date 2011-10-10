@@ -1,3 +1,5 @@
+#ifndef _OWIMOTORCONTROLLER_H_
+#define _OWIMOTORCONTROLLER_H_
 /*
 Copyright (c) 2010 Vincent Sanders, Sekou Remy
 
@@ -36,3 +38,4 @@ void setup_motorforward(char i);
 void setup_motorreverse(char i);
 void setup_motoroff(char i);
 void test();
+#endif /* _OWIMOTORCONTROLLER_H_ */
