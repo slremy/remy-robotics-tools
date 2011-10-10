@@ -45,6 +45,37 @@
 
 static HANDLE win32_hid_handle = NULL;
 
+int write_usb_device(HANDLE h, void *buf, int len, int timeout)
+{
+	static HANDLE event = NULL;
+	unsigned char tmpbuf[1040];
+	OVERLAPPED ov;
+	DWORD n, r;
+
+	if (len > sizeof(tmpbuf) - 1) return 0;
+	if (event == NULL) {
+		event = CreateEvent(NULL, TRUE, TRUE, NULL);
+		if (!event) return 0;
+	}
+	ResetEvent(&event);
+	memset(&ov, 0, sizeof(ov));
+	ov.hEvent = event;
+	tmpbuf[0] = 0;
+	memcpy(tmpbuf + 1, buf, len);
+	if (!WriteFile(h, tmpbuf, len + 1, NULL, &ov)) {
+		if (GetLastError() != ERROR_IO_PENDING) return 0;
+		r = WaitForSingleObject(event, timeout);
+		if (r == WAIT_TIMEOUT) {
+			CancelIo(h);
+			return 0;
+		}
+		if (r != WAIT_OBJECT_0) return 0;
+	}
+	if (!GetOverlappedResult(h, &ov, &n, FALSE)) return 0;
+	if (n <= 0) return 0;
+	return 1;
+}
+
 int write_msg(char* message, char packetsize){
 	int ret;
 	if (!win32_hid_handle) return 0;
