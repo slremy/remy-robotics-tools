@@ -39,9 +39,18 @@
 #define WIN32_LEAN_AND_MEAN 1 /* Speed up compilation. */
 #include <windows.h>
 #include <setupapi.h>
-#include <ddk/hidsdi.h>
-#include <ddk/hidclass.h>
 
+extern "C"
+{
+//#include <ddk/hidsdi.h>
+	#include <api/hidsdi.h>
+	#include <ddk/hidclass.h>
+}
+#include <stdlib.h>
+#include <malloc.h>
+
+#pragma comment(lib, "SetupApi.lib")
+#pragma comment(lib, "hid.lib")
 
 static HANDLE win32_hid_handle = NULL;
 
