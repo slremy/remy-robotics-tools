@@ -24,7 +24,6 @@ THE SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <time.h>
 
 int ctrl;
 char number_motors;
@@ -119,13 +118,6 @@ void   setup_motoroff(char i)
 		ctrl &= ~(3 << (i<<1));
 }
 
-#ifdef win32_lean_and_mean
-        void sleep(int seconds)
-        {
-                Sleep(seconds*1000);
-        }
-#endif
-
 void   test()
 { 
 	fprintf(stderr, "usbowiarm::beginning test\n");
@@ -133,7 +125,6 @@ void   test()
 		setup_LEDTOGGLE();
 		//halt_motors();
 		set_control();
-		sleep(1);
 		fprintf(stderr, "next step in test\n");
 	}
 	fprintf(stderr, " usbowiarm::the above was the result toggling the light 10 times\n");
@@ -142,20 +133,17 @@ void   test()
 	for (char i = 0; i < number_motors; i++){
 		setup_motoroff(number_motors-i-1);
 		set_control();
-		sleep(1);
 	}
 	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned off\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorforward(i);
 		set_control();
-		sleep(1);
 		halt_motors();
 	}		
 	fprintf(stderr, " usbowiarm::the above was each motor incrementally turned on\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorreverse(i);
 		set_control();
-		sleep(1);
 		halt_motors();
 	}
 	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned in reverse\n");
