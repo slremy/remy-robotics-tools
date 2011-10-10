@@ -119,20 +119,21 @@ void   setup_motoroff(char i)
 		ctrl &= ~(3 << (i<<1));
 }
 
+#ifdef win32_lean_and_mean
+        void sleep(int seconds)
+        {
+                Sleep(seconds*1000);
+        }
+#endif
+
 void   test()
-{
-	int millisec = 100; // length of time to sleep, in miliseconds
-	struct timespec req = {0};
-	req.tv_sec = 1;
-	req.tv_nsec = millisec * 1000000L;
-	
-	
+{ 
 	fprintf(stderr, "usbowiarm::beginning test\n");
 	for (char i = 0; i < 10; i++){
 		setup_LEDTOGGLE();
 		//halt_motors();
 		set_control();
-		nanosleep(&req, (struct timespec *)NULL);
+		sleep(1);
 		fprintf(stderr, "next step in test\n");
 	}
 	fprintf(stderr, " usbowiarm::the above was the result toggling the light 10 times\n");
@@ -141,20 +142,20 @@ void   test()
 	for (char i = 0; i < number_motors; i++){
 		setup_motoroff(number_motors-i-1);
 		set_control();
-		nanosleep(&req, (struct timespec *)NULL);
+		sleep(1);
 	}
 	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned off\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorforward(i);
 		set_control();
-		nanosleep(&req, (struct timespec *)NULL);
+		sleep(1);
 		halt_motors();
 	}		
 	fprintf(stderr, " usbowiarm::the above was each motor incrementally turned on\n");
 	for (char i = 0; i < number_motors; i++){
 		setup_motorreverse(i);
 		set_control();
-		nanosleep(&req, (struct timespec *)NULL);
+		sleep(1);
 		halt_motors();
 	}
 	fprintf(stderr, " usbowiarm::the above was incrementally each motor turned in reverse\n");
