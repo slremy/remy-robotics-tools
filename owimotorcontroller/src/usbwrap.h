@@ -1,3 +1,5 @@
+#ifndef _USBWRAP_H_
+#define _USBWRAP_H_
 /*
  Copyright (c) 2011, Sekou Remy
  
@@ -36,3 +38,4 @@
 int write_msg(char* message, char packetsize);
 void close_device();
 int open_device(int vid, int pid, int index);
+#endif /* _USBWRAP_H_ */
