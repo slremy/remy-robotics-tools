@@ -47,8 +47,6 @@ void arm_open(int armnumber){
 void arm_close(){
 	if (connected){
 		halt_motors();
-		setup_LEDOFF();
-		set_control();
 		close_device();
 	}
 }
