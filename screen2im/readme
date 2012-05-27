@@ -1,0 +1,4 @@
+Need to determine if using cmake or not, and haven't tested this form on linux
+
+
+gcc screen2im.c -framework IOKit -framework Carbon -o screen2im.dylib -dynamiclib
