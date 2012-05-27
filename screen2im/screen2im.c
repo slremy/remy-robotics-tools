@@ -1,24 +1,24 @@
 /*
-Copyright (c) 2012 Sekou Remy
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
+ Copyright (c) 2012 Sekou Remy
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 #if !defined(IS_MACOSX) && defined(__APPLE__) && defined(__MACH__)
 	#define IS_MACOSX
@@ -103,15 +103,15 @@ int ImageSetup()
 
 #if defined(IS_MACOSX)
 	void DestroyImage()
-  {
+	{
 		if (_OSImage) CGImageRelease(_OSImage);
 		_OSImage = NULL;
 	}
 
 	void CloseDisplay()
-  {
+	{
 		if (_display)
-    {
+		{
 			//CGLSetCurrentContext( NULL );
 			//CGLClearDrawable( contextObj );
 			//CGLDestroyContext( contextObj );
@@ -121,12 +121,12 @@ int ImageSetup()
 	}
 
 	CGDirectDisplayID OpenDisplay()
-  {
+	{
 		return CGMainDisplayID();
 	}
 
 	int CopyScreen(unsigned char * screenshot)
-  {
+	{
 		int retval = -1;
 		_OSImage = CGDisplayCreateImageForRect(_display, CGRectMake(_startX, _startY, _widthX, _heightY));
 		
@@ -151,7 +151,7 @@ int ImageSetup()
 				retval = -1;//break
 			}
 			else 
-      {
+			{
 				CGContextDrawImage(context, CGRectMake(0, 0, width, height),_OSImage);
 				CGContextRelease(context);
 				retval = 0;			
@@ -165,24 +165,24 @@ int ImageSetup()
 #elif defined(USE_X11)
 
 	void DestroyImage()
-  {
+	{
 		if (_OSImage) XDestroyImage(_OSImage);
 		_OSImage = NULL;
 	}
 
 	void CloseDisplay()
-  {
+	{
 		if (_display) XCloseDisplay(_display);
 		_display = NULL;
 	}
 
 	Display* OpenDisplay()
-  {
+	{
 		return XOpenDisplay(NULL);
 	}
 
 	int CopyScreen(unsigned char * screenshot)
-  {
+	{
 		int retval = -1;
 		_OSImage = XGetImage(_display, DefaultRootWindow(_display), _startX, _startY, _widthX, _heightY, AllPlanes, ZPixmap);
 		
@@ -200,17 +200,17 @@ int ImageSetup()
 			rshift = 0;
 			rbits = 0;
 			while (!(rmask & 1)) 
-      {
+			{
 				rshift++;
 				rmask >>= 1;
 			}
 			while (rmask & 1) 
-      {
+			{
 				rbits++;
 				rmask >>= 1;
 			}
 			if (rbits > 8) 
-      {
+			{
 				rshift += rbits - 8;
 				rbits = 8;
 			}
@@ -218,17 +218,17 @@ int ImageSetup()
 			gshift = 0;
 			gbits = 0;
 			while (!(gmask & 1)) 
-      {
+			{
 				gshift++;
 				gmask >>= 1;
 			}
 			while (gmask & 1) 
-      {
+			{
 				gbits++;
 				gmask >>= 1;
 			}
 			if (gbits > 8) 
-      {
+			{
 				gshift += gbits - 8;
 				gbits = 8;
 			}
@@ -236,26 +236,26 @@ int ImageSetup()
 			bshift = 0;
 			bbits = 0;
 			while (!(bmask & 1)) 
-      {
+			{
 				bshift++;
 				bmask >>= 1;
 			}
-			while (bmask & 1)
-      {
+			while (bmask & 1) 
+			{
 				bbits++;
 				bmask >>= 1;
 			}
 			if (bbits > 8) 
-      {
+			{
 				bshift += bbits - 8;
 				bbits = 8;
 			}
 			
 			XColor color;
 			for ( int x = 0; x < _OSImage->width; x++) 
-      {
+			{
 				for ( int y = 0; y < _OSImage->height; y++) 
-        {
+				{
 					color.pixel = XGetPixel(_OSImage, x, y);
 					colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
 					colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
