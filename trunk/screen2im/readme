@@ -1,4 +1,16 @@
-Need to determine if using cmake or not, and haven't tested this form on linux
+This is a library that reads a portion of the screen and writes it to a buffer.
 
+At present, it can run on Linux and OSX, but extension to other popular operating systems should be straight forward.
 
-gcc screen2im.c -framework IOKit -framework Carbon -o screen2im.dylib -dynamiclib
+It was written for use with Python, as a foreign function library.
+At present the Python ImageGrab module performs this task, but has been a windows-only implementation for quite some time.
+
+To build
+  If using cmake:
+    mkdir build
+    cd build
+    cmake ..
+    make
+OR
+  If using simple makefile
+    make
