@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 2.6)
+SET(CMAKE_SHARED_LIBRARY_PREFIX "")
+
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	FIND_LIBRARY(CARBON_LIBRARY Carbon)
+	MARK_AS_ADVANCED (CARBON_LIBRARY)
+	SET(EXTRA_LIBS ${CARBON_LIBRARY})
+ELSE (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	find_package(X11)
+	if(NOT X11_FOUND)
+    	message(FATAL_ERROR "Failed to find X11 which is required for build")
+	endif(NOT X11_FOUND)
+  	MARK_AS_ADVANCED (X11_LIBRARIES)
+	SET(EXTRA_LIBS ${X11_LIBRARIES})
+ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+ADD_LIBRARY(screen2im SHARED screen2im.c)
+target_link_libraries (screen2im ${EXTRA_LIBS})
