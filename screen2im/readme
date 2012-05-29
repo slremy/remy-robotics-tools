@@ -14,3 +14,11 @@ To build
 OR
   If using simple makefile
     make
+
+
+
+To run, type
+python screen2im.py
+
+Depending on how your library paths are set up you may need to type
+LD_LIBRARY_PATH=. python screen2im.py
