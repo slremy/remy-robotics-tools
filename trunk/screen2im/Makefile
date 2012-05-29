@@ -6,7 +6,7 @@ LIBS =
 
 ifeq ($(UNAME), Linux)
 	INCLUDES += `pkg-config --cflags x11` 
-	LIBS += `pkg-config --libs x11` -dynamic
+	LIBS += `pkg-config --libs x11` -shared
 	TARGET = screen2im.so
 endif
 
