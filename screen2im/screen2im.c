@@ -252,16 +252,17 @@ int ImageSetup()
 			}
 			
 			XColor color;
-			for ( int x = 0; x < _OSImage->width; x++) 
+  		int x, y;
+			for ( x = 0; x < _OSImage->width; x++) 
 			{
-				for ( int y = 0; y < _OSImage->height; y++) 
+				for ( y = 0; y < _OSImage->height; y++) 
 				{
 					color.pixel = XGetPixel(_OSImage, x, y);
 					colorChannel[0] = ((color.pixel >> bshift) & ((1 << bbits) - 1)) << (8 - bbits);
 					colorChannel[1] = ((color.pixel >> gshift) & ((1 << gbits) - 1)) << (8 - gbits);
 					colorChannel[2] = ((color.pixel >> rshift) & ((1 << rbits) - 1)) << (8 - rbits);
 					
-					int index = 3*x+3*y*_OSImage->width;  //orientation switch!
+					int index = 4*x+4*y*_OSImage->width;  //orientation switch!
 					screenshot[index] =  colorChannel[2];
 					screenshot[index + 1] = colorChannel[1];
 					screenshot[index + 2] = colorChannel[0];
@@ -271,7 +272,7 @@ int ImageSetup()
 			retval = 0;
 		}
 		
-		DestroyImage()
+		DestroyImage();
 		return retval;
 	}
 
