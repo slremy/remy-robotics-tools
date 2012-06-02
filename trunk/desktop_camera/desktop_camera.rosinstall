@@ -1,0 +1,6 @@
+- svn:
+    uri: http://remy-robotics-tools.googlecode.com/svn/trunk/desktop_camera
+    local-name: desktop_camera
+- svn:
+    uri: http://remy-robotics-tools.googlecode.com/svn/trunk/screen2im/
+    local-name: desktop_camera/screen2im
