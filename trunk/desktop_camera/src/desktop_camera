@@ -1,10 +1,34 @@
 #!/usr/bin/env python
+'''
+ Copyright (c) 2012 Sekou Remy
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+'''
 import Image as pilImage
 from ctypes import cdll, c_ubyte
 import roslib
+from roslib  import substitution_args
 roslib.load_manifest("sensor_msgs")
 import rospy
 from sensor_msgs.msg import Image
+import os
+path = os.path.dirname(os.path.realpath(__file__))
 
 def pil_to_imgmsg(image,encodingmap={'L':'mono8', 'RGB':'rgb8','RGBA':'rgba8', 'YCbCr':'yuv422'},PILmode_channels = { 'L' : 1, 'RGB' : 3, 'RGBA' : 4, 'YCbCr' : 3 }):
     rosimage = Image()
@@ -24,7 +48,7 @@ class convert2rosimage_node:
                 self.width = rospy.get_param("width", 600);
                 self.height = rospy.get_param("height", 400);
 
-                self.myclib = cdll.LoadLibrary("screen2im.dylib")
+                self.myclib = cdll.LoadLibrary(substitution_args.resolve_args("$(find screen2im)")+ os.path.sep + "lib" + os.path.sep +"screen2im.dylib")
                 self.data = (c_ubyte*(self.width*self.height*4))()
                 self.myclib.InitImage(self.left,self.top,self.width,self.height);
                 ret = self.myclib.ImageSetup()
@@ -47,4 +71,3 @@ class convert2rosimage_node:
 
 if __name__ == '__main__':
         myimage = convert2rosimage_node();
-
