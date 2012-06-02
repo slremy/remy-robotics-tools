@@ -28,6 +28,7 @@ roslib.load_manifest("sensor_msgs")
 import rospy
 from sensor_msgs.msg import Image
 import os
+
 path = os.path.dirname(os.path.realpath(__file__))
 
 def pil_to_imgmsg(image,encodingmap={'L':'mono8', 'RGB':'rgb8','RGBA':'rgba8', 'YCbCr':'yuv422'},PILmode_channels = { 'L' : 1, 'RGB' : 3, 'RGBA' : 4, 'YCbCr' : 3 }):
