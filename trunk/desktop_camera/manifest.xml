@@ -1,0 +1,17 @@
+<package>
+  <description brief="desktop_camera">
+
+     desktop_camera
+
+  </description>
+  <author>Sekou Remy</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/desktop_camera</url>
+  <depend package="rospy"/>
+  <depend package="roslib"/>
+  <depend package="sensor_msgs"/>
+  <depend package="screen2im"/>
+</package>
+
+
