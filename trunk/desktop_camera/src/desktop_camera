@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+import Image as pilImage
+from ctypes import cdll, c_ubyte
+import roslib
+roslib.load_manifest("sensor_msgs")
+import rospy
+from sensor_msgs.msg import Image
+
+def pil_to_imgmsg(image,encodingmap={'L':'mono8', 'RGB':'rgb8','RGBA':'rgba8', 'YCbCr':'yuv422'},PILmode_channels = { 'L' : 1, 'RGB' : 3, 'RGBA' : 4, 'YCbCr' : 3 }):
+    rosimage = Image()
+    rosimage.encoding = encodingmap[image.mode]
+    (rosimage.width, rosimage.height) = image.size
+    rosimage.step = PILmode_channels[image.mode] * rosimage.width
+    rosimage.data = image.tostring()
+    return rosimage
+
+class convert2rosimage_node:
+        def __init__(self):
+                rospy.init_node('screencap_node', anonymous=True)
+                self.image_pub = rospy.Publisher("image", Image);
+
+                self.top = rospy.get_param("top", 70);
+                self.left = rospy.get_param("left", 600);
+                self.width = rospy.get_param("width", 600);
+                self.height = rospy.get_param("height", 400);
+
+                self.myclib = cdll.LoadLibrary("screen2im.dylib")
+                self.data = (c_ubyte*(self.width*self.height*4))()
+                self.myclib.InitImage(self.left,self.top,self.width,self.height);
+                ret = self.myclib.ImageSetup()
+
+                self.refreshrate = rospy.get_param("refreshrate", 35);
+                self.spin()
+
+        def spin(self):
+                r = rospy.Rate(self.refreshrate)
+                rospy.loginfo("Processing frames")
+                while not rospy.is_shutdown():
+                        ret = self.myclib.CopyScreen(self.data);
+                        if ret == 0:
+                               try:
+                                      img = pilImage.frombuffer('RGBA', (self.width, self.height), self.data, 'raw', 'RGBA', 0, 1)
+                                      self.image_pub.publish(pil_to_imgmsg(img))
+                               except Exception, err:
+                                      rospy.logwarn("Unable to convert or publish image due to %s" % str(err))
+                        r.sleep()
+
+if __name__ == '__main__':
+        myimage = convert2rosimage_node();
+
