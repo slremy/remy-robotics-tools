@@ -1,5 +1,12 @@
 This is a library that reads a portion of the screen and writes it to a buffer.
 
+
+WARNING: There are no checks on the maximum screen size performed.
+It is possible to ask for a screen size larger than the buffer has.
+This information is processed as bytes that are made into an image.
+
+
+
 At present, it can run on Linux and OSX, but extension to other popular operating systems should be straight forward.
 
 It was written for use with Python, as a foreign function library.
@@ -19,6 +26,3 @@ OR
 
 To run, type
 python screen2im.py
-
-Depending on how your library paths are set up you may need to type
-LD_LIBRARY_PATH=. python screen2im.py
