@@ -26,13 +26,15 @@ from ctypes import cdll, c_ubyte
 import Tkinter
 import ImageTk
 import sys
+import os
+path = os.path.dirname(os.path.realpath(__file__))
 
 if sys.platform=='win32':
-    libc=cdll.LoadLibrary("screen2im.dll") 
+    libc=cdll.LoadLibrary(os.path.dirname(os.path.abspath(__file__)) + os.path.sep + "screen2im.dll") 
 elif sys.platform.startswith('linux'):
-    myclib = cdll.LoadLibrary("screen2im.so")
+    myclib = cdll.LoadLibrary(os.path.dirname(os.path.abspath(__file__)) + os.path.sep + "screen2im.so")
 elif sys.platform.startswith('darwin'):
-    myclib = cdll.LoadLibrary("screen2im.dylib")
+    myclib = cdll.LoadLibrary(os.path.dirname(os.path.abspath(__file__)) + os.path.sep + "screen2im.dylib")
 
 w,h=600,400
 interval = 30 #milliseconds
