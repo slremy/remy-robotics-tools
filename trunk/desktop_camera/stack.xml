@@ -1,0 +1,12 @@
+<stack>
+  <version>0.0.1</version>
+  <description brief="desktop_camera">desktop_camera</description>
+  <author>Maintained by Sekou Remy</author>
+  <license>BSD</license>  
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/desktop_camera</url>
+  <depend stack="common_msgs" /> <!-- sensor_msgs -->
+  <depend stack="ros" /> <!-- roslib -->
+  <depend stack="ros_comm" /> <!-- rospy -->
+
+</stack>
