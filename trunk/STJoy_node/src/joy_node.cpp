@@ -117,7 +117,7 @@ public:
 				sleep(1.0);
 			}
 			
-			joy_fd = STJoystick::OpenJoystick(this->dev);
+			joy_fd = STJoystick::OpenJoystick(joy_dev_.c_str());
 			if (joy_fd != NULL)
 			{
 				ROS_INFO("Opened joystick: %s. deadzone_: %f.", joy_dev_.c_str(), deadzone_);
@@ -150,7 +150,7 @@ public:
 								joy_msg.buttons[i] = 0.0;
 						}
 
-						for (int buttons_index = 0 ; buttons_index <  this->joy->NumButtons() ; buttons_index++)
+						for (int buttons_index = 0 ; buttons_index <  joy_fd->NumButtons() ; buttons_index++)
 						{
 							joy_msg.buttons[buttons_index] |= (1 <<  joy_fd->GetButton(buttons_index));
 						}
