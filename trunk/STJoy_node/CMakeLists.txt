@@ -19,5 +19,5 @@ set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 #common commands for building c++ executables and libraries
 #rosbuild_add_library(${PROJECT_NAME} src/example.cpp)
 #target_link_libraries(joy_node  STJoy)
-rosbuild_add_executable(joy_node joy_node.cpp)
+rosbuild_add_executable(joy_node src/joy_node.cpp)
 
