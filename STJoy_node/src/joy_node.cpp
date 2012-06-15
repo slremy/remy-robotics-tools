@@ -259,7 +259,7 @@ public:
 				} // End of joystick open loop.
 				
 				// Close the joystick
-				joy->Close();
+				joy_fd->Close();
 				ros::spinOnce();
 			}
 
