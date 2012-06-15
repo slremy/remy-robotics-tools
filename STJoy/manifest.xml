@@ -1,0 +1,11 @@
+<package>
+  <description brief="STJoy">
+
+     Cross platform joystuck library
+
+  </description>
+  <author>Sekou Remy</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://remy-robotics-tools.googlecode.com/svn/trunk/STJoy/index.html</url>
+</package>
