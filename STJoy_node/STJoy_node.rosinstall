@@ -1,0 +1,6 @@
+- svn:
+    uri: http://remy-robotics-tools.googlecode.com/svn/trunk/STJoy_node/
+    local-name: STJoy_node
+- svn:
+    uri: http://remy-robotics-tools.googlecode.com/svn/trunk/STJoy/
+    local-name: STJoy
