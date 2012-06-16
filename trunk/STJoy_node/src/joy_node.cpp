@@ -96,7 +96,7 @@ public:
 		double unscaled_deadzone = 32767. * deadzone_;
 		
 		struct timeval tv;
-		fd_set set;
+
 		STJoystick* joy_fd;
 		event_count_ = 0;
 		pub_count_ = 0;
@@ -129,6 +129,7 @@ public:
 				tv.tv_sec = 1;
 				tv.tv_usec = 0;
 				sensor_msgs::Joy joy_msg; // Here because we want to reset it on device close.
+				sensor_msgs::Joy old_joy_msg;
 				while (nh_.ok()) 
 				{
 					ros::spinOnce();
@@ -148,19 +149,23 @@ public:
 						{
 							int old_size = joy_msg.buttons.size();
 							joy_msg.buttons.resize(joy_fd->NumButtons());
+							old_joy_msg.buttons.resize(joy_fd->NumButtons());
 							for(unsigned int i=old_size;i<joy_msg.buttons.size();i++)
 								joy_msg.buttons[i] = 0.0;
 						}
 
 						for (int buttons_index = 0 ; buttons_index <  joy_fd->NumButtons() ; buttons_index++)
 						{
+							old_joy_msg.buttons[buttons_index] = joy_msg.buttons[buttons_index];
 							joy_msg.buttons[buttons_index] = joy_fd->GetButton(buttons_index);
+							delta += abs(joy_msg.buttons[buttons_index]-old_joy_msg.buttons[buttons_index]);
 						}
 												
 						if((unsigned int)joy_fd->NumAxes() >= joy_msg.axes.size())
 						{
 							int old_size = joy_msg.axes.size();
 							joy_msg.axes.resize(joy_fd->NumAxes());
+							old_joy_msg.axes.resize(joy_fd->NumAxes());
 							for(unsigned int i=old_size;i<joy_msg.axes.size();i++)
 								joy_msg.axes[i] = 0.0;
 						}
@@ -176,10 +181,16 @@ public:
 							else
 								val = 0;
 							
+							old_joy_msg.axes[axes_index] = joy_msg.axes[axes_index];
 							joy_msg.axes[axes_index] = val * scale;
+							delta += fabs(joy_msg.axes[axes_index]-old_joy_msg.axes[axes_index]);
 						}
-						
-						publish_now = true;						
+
+						if (delta>deadzone_*.1) {
+							publish_now = true;						
+						}else {
+							publish_now = false;						
+						}
 						
 					}
 					
