@@ -8,4 +8,9 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>http://remy-robotics-tools.googlecode.com/svn/trunk/STJoy/index.html</url>
+  
+  <export>
+    <cpp cflags="-I${prefix}" lflags="-L${prefix} -lSTJoy"/>
+  </export>
+
 </package>
