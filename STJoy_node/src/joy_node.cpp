@@ -23,7 +23,7 @@
 #include "ros/ros.h"
 #include <sensor_msgs/Joy.h>
 
-#include "STJoy/STJoystick.h"
+#include <STJoystick.h>
 
 #define STJOY_AXIS_MAX 127
 
