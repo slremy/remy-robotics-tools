@@ -19,6 +19,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+/*
+Inspired by joy/joy_node.cpp, this code provides (what should be) a cross 
+platform joystick driver.
+
+No diagnostics implemented in current version.
+*/
 
 #include "ros/ros.h"
 #include <sensor_msgs/Joy.h>
