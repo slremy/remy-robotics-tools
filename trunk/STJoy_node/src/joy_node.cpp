@@ -106,6 +106,7 @@ public:
 		{                                      
 			open_ = false;
 			bool first_fault = true;
+			STJoystick::Initialize();
 			while (STJoystick::NumJoysticks() < 1)
 			{
 				ros::spinOnce();
@@ -136,7 +137,7 @@ public:
 					bool publish_soon = false;
 
 					// get the next event from the joystick
-					if (joy_fd == NULL)
+					if (joy_fd != NULL)
 					{
   					joy_fd->Update();
 						//ROS_INFO("Read data...");
@@ -153,7 +154,7 @@ public:
 
 						for (int buttons_index = 0 ; buttons_index <  joy_fd->NumButtons() ; buttons_index++)
 						{
-							joy_msg.buttons[buttons_index] |= (1 <<  joy_fd->GetButton(buttons_index));
+							joy_msg.buttons[buttons_index] = joy_fd->GetButton(buttons_index);
 						}
 												
 						if((unsigned int)joy_fd->NumAxes() >= joy_msg.axes.size())
@@ -166,7 +167,7 @@ public:
 						
 						for (int axes_index = 0 ; axes_index <  joy_fd->NumAxes() ; axes_index++)
 						{
-							double val = joy_fd->GetAxis(axes_index)/STJOY_AXIS_MAX*32767.;
+							double val = (joy_fd->GetAxis(axes_index)-STJOY_AXIS_MAX)/(double)STJOY_AXIS_MAX*32767.;
 							// Allows deadzone to be "smooth"
 							if (val > unscaled_deadzone)
 								val -= unscaled_deadzone;
