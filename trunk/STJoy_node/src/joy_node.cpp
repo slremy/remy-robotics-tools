@@ -33,7 +33,7 @@ class Joystick
 private:
 	ros::NodeHandle nh_;
 	bool open_;               
-	std::string joy_dev_;
+	int joy_dev_;
 	double deadzone_;
 	double autorepeat_rate_;  // in Hz.  0 for no repeat.
 	double coalesce_interval_; // Defaults to 100 Hz rate limit.
@@ -51,7 +51,7 @@ public:
 		// Parameters
 		ros::NodeHandle nh_param("~");
 		pub_ = nh_.advertise<sensor_msgs::Joy>("joy", 1);
-		nh_param.param<std::string>("dev", joy_dev_, "/dev/input/js0");
+		nh_param.param<int>("dev", joy_dev_, 0);
 		nh_param.param<double>("deadzone", deadzone_, 0.05);
 		nh_param.param<double>("autorepeat_rate", autorepeat_rate_, 0); //?
 		nh_param.param<double>("coalesce_interval", coalesce_interval_, 0.001); //?
@@ -111,16 +111,16 @@ public:
 				ros::spinOnce();
 				if (first_fault)
 				{
-					ROS_ERROR("Couldn't open joystick %s. Will retry every second.", joy_dev_.c_str());
+					ROS_ERROR("Couldn't open joystick %d. Will retry every second.", joy_dev_);
 					first_fault = false;
 				}
 				sleep(1.0);
 			}
 			
-			joy_fd = STJoystick::OpenJoystick(joy_dev_.c_str());
+			joy_fd = STJoystick::OpenJoystick(joy_dev_);
 			if (joy_fd != NULL)
 			{
-				ROS_INFO("Opened joystick: %s. deadzone_: %f.", joy_dev_.c_str(), deadzone_);
+				ROS_INFO("Opened joystick: %d. deadzone_: %f.", joy_dev_, deadzone_);
 				open_ = true;
 				
 				bool tv_set = false;
@@ -138,11 +138,12 @@ public:
 					// get the next event from the joystick
 					if (joy_fd == NULL)
 					{
+  					joy_fd->Update();
 						//ROS_INFO("Read data...");
 						joy_msg.header.stamp = ros::Time().now();
 						event_count_++;
 
-						if(joy_fd->NumButtons() >= joy_msg.buttons.size())
+						if((unsigned int)joy_fd->NumButtons() >= joy_msg.buttons.size())
 						{
 							int old_size = joy_msg.buttons.size();
 							joy_msg.buttons.resize(joy_fd->NumButtons());
@@ -155,7 +156,7 @@ public:
 							joy_msg.buttons[buttons_index] |= (1 <<  joy_fd->GetButton(buttons_index));
 						}
 												
-						if(joy_fd->NumAxes() >= joy_msg.axes.size())
+						if((unsigned int)joy_fd->NumAxes() >= joy_msg.axes.size())
 						{
 							int old_size = joy_msg.axes.size();
 							joy_msg.axes.resize(joy_fd->NumAxes());
