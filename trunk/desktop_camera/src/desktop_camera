@@ -28,6 +28,7 @@ roslib.load_manifest("sensor_msgs")
 import rospy
 from sensor_msgs.msg import Image
 import os
+import platform
 
 path = os.path.dirname(os.path.realpath(__file__))
 
@@ -49,7 +50,9 @@ class convert2rosimage_node:
                 self.width = rospy.get_param("width", 600);
                 self.height = rospy.get_param("height", 400);
 
-                self.myclib = cdll.LoadLibrary(substitution_args.resolve_args("$(find screen2im)")+ os.path.sep + "lib" + os.path.sep +"screen2im.dylib")
+                libname = substitution_args.resolve_args("$(find screen2im)")+ os.path.sep + "lib" + os.path.sep +"screen2im.";
+                ext = "dylib" if platform.system() == 'Darwin' else "so" if platform.system() == "Linux" else None
+                self.myclib = cdll.LoadLibrary(libname+ext)
                 self.data = (c_ubyte*(self.width*self.height*4))()
                 self.myclib.InitImage(self.left,self.top,self.width,self.height);
                 ret = self.myclib.ImageSetup()
