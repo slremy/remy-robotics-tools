@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+'''
+ Copyright (c) 2012 Sekou Remy
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+'''
+'''
+	This node takes a single base url and converts the data to a ROS message.
+	It does beg the question of what's the proper way to convert data/messages.
+	For example, should a PNG have the opencv overhead?
+
+	Given the node the base url, [optionally the topic to subscribe to, or 
+	the interval between attempts], the type of the message to publish, and 
+	the topic to publish the message  
+
+	The converter takes the provided bytes and converts it to the requested 
+	form, or generates an exception and returns None.
+'''
+
+import roslib;
+roslib.load_manifest("sensor_msgs")
+roslib.load_manifest("message_filters")
+import urllib
+import urllib2
+import rospy
+import message_filters
+from std_msgs.msg import String
+
+class web_sink_get_node:
+	def __init__(self):
+		rospy.init_node('web_sink', anonymous=True);
+		self.data_type = rospy.get_param("~data_type");
+		self.data_topic = rospy.get_param("~data_topic");
+
+		if self.data_type == "sensor_msgs/Image":
+			import convertToROSimage
+			self.converter = convertToROSimage.converter();
+		elif self.data_type == "std_msgs/String":
+			import convertToROSString
+			self.converter = convertToROSString.converter();
+		else:
+			# The converter for this ROS data/message type is not yet implemented.
+			rospy.logerr("The converter for this ROS data/message type is not yet implemented.")
+		
+		data_class = roslib.message.get_message_class(self.data_type)
+		self.data_pub = rospy.Publisher(self.data_topic,data_class)
+	
+		rospy.Subscriber("request", String, self.callback)
+		self.base_url = rospy.get_param("~base_url");
+		rospy.spin()
+		
+	def callback(self,data):
+		# data is presumed appropriately encoded in requestor 
+		# e.g. <<<< encoded_data = urllib.urlencode({'chl':data});  >>>>
+		rospy.loginfo( self.base_url+data.data )
+		returned_data=urllib2.urlopen(self.base_url+data.data)
+		msg = self.converter.convert(returned_data.read());
+		self.data_pub.publish(msg)
+
+if __name__ == '__main__':
+	object = web_sink_get_node();

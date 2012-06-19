@@ -1,0 +1,14 @@
+<launch>
+  <node pkg="ros_web_service" type="web_sink_node" name="internetimages" required="true">
+    <param name="base_url" value="http://www.ros.org/images/ros_org.png?"/>
+    <param name="data_topic" value="image"/>
+    <param name="data_type" value="sensor_msgs/Image"/>
+    <remap from="request" to="say" />
+  </node>
+
+
+  <node pkg="rostopic" type="rostopic" name="talker" args="pub say std_msgs/String hello -r .1" output="screen" />
+  <node pkg="image_view" type="image_view" name="image_viewer" output="screen" />
+
+</launch>
+

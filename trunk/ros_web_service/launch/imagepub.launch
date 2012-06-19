@@ -1,0 +1,11 @@
+<launch>
+  <node pkg="ros_web_service" type="imagepub_service.py" name="imagepub" required="true">
+    <param name="data_uri" value="/image"/>
+    <param name="data_type" value="sensor_msgs/Image"/>
+    <remap from="image" to="/camera/rgb/image_color"/>
+  </node>
+
+  <node pkg="image_view" type="image_view" name="image_viewer" output="screen" >
+    <remap from="image" to="/camera/rgb/image_color"/>
+  </node> 
+</launch>

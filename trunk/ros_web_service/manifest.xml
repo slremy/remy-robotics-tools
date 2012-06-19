@@ -1,0 +1,16 @@
+<package>
+  <description brief="ros_web_service">
+
+     ros_web_service
+
+  </description>
+  <author>Sekou Remy</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ros_web_service</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+
+</package>
+
+
