@@ -86,4 +86,4 @@ if __name__ == "__main__":
         except (KeyboardInterrupt, SystemExit):
                 server.stop()
                 print "Shutting down service"
-
+                tc.publisher.publish(Twist()) #publish an empty twist to stop motion
