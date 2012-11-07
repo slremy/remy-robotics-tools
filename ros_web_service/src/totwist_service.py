@@ -66,8 +66,8 @@ class twist:
                 except Exception, err:
                         rospy.logwarn("Cannot convert/publish due to %s" % err)
 
-                data = '';
-                size = 0
+                data = '0';
+                size = len(data);
                 web.header("Content-Length", str(size)) # Set the Header
                 #output to browser
                 web.header("Content-Type", "text/plain") # Set the Header
