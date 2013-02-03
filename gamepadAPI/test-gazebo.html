@@ -3,172 +3,155 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-
-   <head>
-      <title>Browser Control</title>
-      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-      <script type="text/javascript">
-         var command = "init"
-         var old_command=command;
-         var basetime = new Date();
-         var keyPressed = {};
-         var lspeed = ".15"
-         var aspeed = ".15"
-         var lx = "&lx="
-         var ly = "&ly="
-         var lz = "&lz="
-         var lxn = "&lx=-"
-         var lyn = "&ly=-"
-         var lzn = "&lz=-"
-         var ax = "&ax="
-         var ay = "&ay="
-         var az = "&az=-"
-         var axn = "&ax=-"
-         var ayn = "&ay=-"
-         var azn = "&az="
-
-
-
-
-         // Set the BaseURL to the URL of your camera
-         var BaseURL = window.location.protocol + "//" + window.location.hostname
-
-         // DisplayWidth & DisplayHeight specifies the displayed width & height of the image.
-         // You may change these numbers, the effect will be a stretched or a shrunk image
-         var DisplayWidth = "600";
-         var DisplayHeight = "500";
-
-         // This is the path to the image generating file inside the camera itself
-         var File = ":8081/stream?topic=/front_cam/camera/image?width=600?height=500?quality=100";
-
-         // No changes required below this point
-
-         var output = "";
-         if ((navigator.appName == "Microsoft Internet Explorer") &&
-            (navigator.platform != "MacPPC") && (navigator.platform != "Mac68k"))
-         if ((navigator.appName == "Microsoft Internet Explorer") &&
-            (navigator.platform != "MacPPC") && (navigator.platform != "Mac68k"))
-         {
-            // If Internet Explorer under Windows then use ActiveX
-            output = '<OBJECT ID="Player" width='
-            output += DisplayWidth;
-            output += ' height=';
-            output += DisplayHeight;
-            output += ' CLASSID="CLSID:DE625294-70E6-45ED-B895-CFFA13AEB044" ';
-            output += 'CODEBASE="';
-            output += BaseURL;
-            output += 'activex/AMC.cab#version=3,20,18,0">';
-            output += '<PARAM NAME="MediaURL" VALUE="';
-            output += BaseURL;
-            output += File + '">';
-            output += '<param name="MediaType" value="mjpeg-unicast">';
-            output += '<param name="ShowStatusBar" value="1">';
-            output += '<param name="ShowToolbar" value="1">';
-            output += '<param name="AutoStart" value="1">';
-            output += '<param name="StretchToFit" value="1">';
-            output += '<BR><B>Axis Media Control</B><BR>';
-            output += 'The AXIS Media Control, which enables you ';
-            output += 'to view live image streams in Microsoft Internet';
-            output += ' Explorer, could not be registered on your computer.';
-            output += '<BR></OBJECT>';
-         } else {
-            // If not IE for Windows use the browser itself to display
-            theDate = new Date();
-            output = '<IMG SRC="';
-            output += BaseURL;
-            output += File;
-            output += '&dummy=' + theDate.getTime().toString(10);
-            output += '" HEIGHT="';
-            output += DisplayHeight;
-            output += '" WIDTH="';
-            output += DisplayWidth;
-            output += '" ALT="MJPEG non IE">';
-         }
-
-         function httpGet(theUrl)
-         {
-            var xmlHttp = null;
-            xmlHttp = new XMLHttpRequest();
-            xmlHttp.open( "GET", BaseURL + ":8082/twist?"+theUrl, true );
-            xmlHttp.send( null );
-            return  
-         }
-
-         document.addEventListener('keydown', function(e) {
-                             keyPressed[e.keyCode] = true;
-                             }, false);
-         document.addEventListener('keyup', function(e) {
-                             keyPressed[e.keyCode] = false;
-                             }, false);
-
-         function init_all(){
-            gameLoop();
-            document.getElementById("text3").innerHTML=output;
-         }
-
-         function gameLoop() {
-            var now = new Date();
-            var tt = (now.getTime()-basetime.getTime())/1000;
-            //arrow keys to move forward and turn left/right 
-            if (keyPressed["37"] && keyPressed["39"]) {
-               command=""
-            }
-            else if (keyPressed["38"] && keyPressed["40"]) {
-               command=""
-            }
-            else if (keyPressed["37"] && keyPressed["38"]) {
-               command=azn+aspeed+lx+lspeed
-            }
-            else if (keyPressed["37"] && keyPressed["40"]) {
-               command=azn+aspeed+lxn+lspeed
-            }
-            else if (keyPressed["39"] && keyPressed["38"]) {
-               command=az+aspeed+lx+lspeed
-            }
-            else if (keyPressed["39"] && keyPressed["40"]) {
-               command=az+aspeed+lxn+lspeed
-            }
-            else if (keyPressed["37"]) {
-               command=azn+aspeed;
-            }
-            else if (keyPressed["38"]) {
-               command=lx+lspeed;
-            }
-            else if (keyPressed["39"]) {   
-               command=az+aspeed;
-            }
-            else if (keyPressed["40"]) {
-               command=lxn+lspeed;
-            }
-            else {
-               command=""
-            }
-
-            //up-down by the "w" and the "s" keys   
-            if (keyPressed["87"]) {
-               command=command+lz+lspeed;
-            }
-            else if (keyPressed["83"]) {
-               command=command+lzn+lspeed;
-            }
-
-            if (old_command != command){
-               httpGet(command);
-               old_command=command;
-            }
-            document.getElementById("text4").innerHTML=command
-            document.getElementById("text2").innerHTML=" time ="+tt.toString()
-            setTimeout(gameLoop, 30);
-         }
-
-         </script>
-   </head>
-
-   <body onload="init_all();">
-
-
-      <b id="text2"></b><br>
-      <b id="text3"></b><br>
-      <b id="text4"></b><br>
-   </body>
+	
+	<head>
+		<title>Gamepad Browser Control</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<script src='http://remy-robotics-tools.googlecode.com/svn/trunk/gamepadAPI/twistgamepad.js'></script>
+		<!--script src='twistgamepad.js'></script-->
+		<script type="text/javascript">
+			// Set the BaseURL to the URL of your camera
+			var BaseURL = window.location.protocol + "//" + window.location.hostname
+			
+			// DisplayWidth & DisplayHeight specifies the displayed width & height of the image.
+			// You may change these numbers, the effect will be a stretched or a shrunk image
+			var DisplayWidth = "300";
+			var DisplayHeight = "250";
+			
+			// This is the path to the image generating file inside the camera itself
+			var File = ":8081/stream?topic=/robot_0/image?width=600?height=500?quality=100";
+			
+			var output = "";
+			if ((navigator.appName == "Microsoft Internet Explorer") &&
+				(navigator.platform != "MacPPC") && (navigator.platform != "Mac68k"))
+			{
+				// If Internet Explorer under Windows then use ActiveX
+				output = 'Browser not supported'
+				output += '<BR>';
+			} 
+			else 
+			{
+				// If not IE for Windows use the browser itself to display
+				theDate = new Date();
+				output = '<IMG SRC="';
+				output += BaseURL;
+				output += File;
+				output += '&dummy=' + theDate.getTime().toString(10);
+				output += '" HEIGHT="';
+				output += DisplayHeight;
+				output += '" WIDTH="';
+				output += DisplayWidth;
+				output += '" ALT="MJPEG non IE">';
+			}
+			
+			function httpGet(theUrl)
+			{                        
+				var xmlHttp = null;
+				document.getElementById("text4").innerHTML=theUrl
+				//xmlHttp = new XMLHttpRequest();
+				//xmlHttp.open( "GET", BaseURL + ":8080/twist?id=0&"+theUrl, true );
+				//xmlHttp.send( null );
+				return
+			}
+			
+			
+			function init_gmpd()
+			{
+				gamepadSupport.init();
+				document.getElementById("text3").innerHTML=output;
+			}
+			
+		</script>
+		<script type="text/javascript">
+			var command = "init"
+			var old_command=command;
+			var basetime = new Date();
+			var keyPressed = {};
+			var lspeed = ".15"
+			var aspeed = ".15"
+			var lx = "&lx="
+			var ly = "&ly="
+			var lz = "&lz="
+			var lxn = "&lx=-"
+			var lyn = "&ly=-"
+			var lzn = "&lz=-"
+			var ax = "&ax="
+			var ay = "&ay="
+			var az = "&az=-"
+			var axn = "&ax=-"
+			var ayn = "&ay=-"
+			var azn = "&az="
+			
+			
+			
+			document.addEventListener('keydown', function(e) { keyPressed[e.keyCode] = true;}, false);
+			document.addEventListener('keyup', function(e) { keyPressed[e.keyCode] = false;}, false);
+			
+			function init_keybrd(){
+				gameLoop();
+			}
+			
+			function gameLoop() {
+				var now = new Date();
+				var tt = (now.getTime()-basetime.getTime())/1000;
+				//arrow keys to move forward and turn left/right 
+				if (keyPressed["37"] && keyPressed["39"]) {
+					command=""
+				}
+				else if (keyPressed["38"] && keyPressed["40"]) {
+					command=""
+				}
+				else if (keyPressed["37"] && keyPressed["38"]) {
+					command=azn+aspeed+lx+lspeed
+				}
+				else if (keyPressed["37"] && keyPressed["40"]) {
+					command=azn+aspeed+lxn+lspeed
+				}
+				else if (keyPressed["39"] && keyPressed["38"]) {
+					command=az+aspeed+lx+lspeed
+				}
+				else if (keyPressed["39"] && keyPressed["40"]) {
+					command=az+aspeed+lxn+lspeed
+				}
+				else if (keyPressed["37"]) {
+					command=azn+aspeed;
+				}
+				else if (keyPressed["38"]) {
+					command=lx+lspeed;
+				}
+				else if (keyPressed["39"]) {   
+					command=az+aspeed;
+				}
+				else if (keyPressed["40"]) {
+					command=lxn+lspeed;
+				}
+				else {
+					command=""
+				}
+				
+				//up-down by the "w" and the "s" keys   
+				if (keyPressed["87"]) {
+					command=command+lz+lspeed;
+				}
+				else if (keyPressed["83"]) {
+					command=command+lzn+lspeed;
+				}
+				
+				if (old_command != command){
+					httpGet(command);
+					old_command=command;
+				}
+				setTimeout(gameLoop, 30);
+			}
+			
+		</script>
+	</head>
+	
+	<body onload="init_keybrd();init_gmpd();">
+		
+		
+		<b id="text2"></b><br>
+		<b id="text3"></b><br>
+		<b id="text4">nothing special</b><br>
+	</body>
 </html>
