@@ -242,8 +242,9 @@ var gamepadSupport = {
 
 	if (gamepad.buttons[6] || gamepad.buttons[7]){
 		// Update all the analogue sticks.
-		local_command = "&lz="+(-1*gamepad.axes[1]).toFixed(3)+"&az="+(-1*gamepad.axes[0]).toFixed(3)+"&lx="+(-1*gamepad.axes[3]).toFixed(3)+"&ly="+(-1*gamepad.axes[2]).toFixed(3)+"&id="+gamepadId;
-		httpGet(local_command);
+  	var now = new Date();
+		local_command = "&lz="+(-1*gamepad.axes[1]).toFixed(3)+"&az="+(-1*gamepad.axes[0]).toFixed(3)+"&lx="+(-1*gamepad.axes[3]).toFixed(3)+"&ly="+(-1*gamepad.axes[2]).toFixed(3)+"&id="+gamepadId+"&time="+now.getTime();
+  	httpGet(local_command);
 	}
   }
 };
