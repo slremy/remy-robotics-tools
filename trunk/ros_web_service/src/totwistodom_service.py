@@ -26,16 +26,28 @@ roslib.load_manifest('geometry_msgs')
 roslib.load_manifest('nav_msgs')
 import rospy
 import web
+import sys
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
 class twist_converter:
         def __init__(self):
                 rospy.init_node('twist_converter', anonymous=True)
-                self.publisher = rospy.Publisher('cmd_vel',Twist);
+                self.num_robots=int(rospy.get_param('~num_robots',1))
+                self.publishers = [None]*self.num_robots; 
+                if rospy.has_param('~robot_prefix'): #if there is a robot prefix assume that there is actually one or more
+                	#full_param_name = rospy.search_param('robot_prefix')
+                	#robot_prefix = rospy.get_param(full_param_name)
+                	robot_prefix=rospy.get_param('~robot_prefix')
+                	for r in range(self.num_robots):
+                		self.publishers[r]=rospy.Publisher(robot_prefix+str(r)+'/cmd_vel',Twist);
+                else: # if no robot prefix, assume that there is only one robot
+                	self.publishers[0] = rospy.Publisher('cmd_vel',Twist);
+
                 self.data_uri = rospy.get_param("data_uri","/twist");
-                self.urls = (self.data_uri,'twist', "/stop","stop")
-                self.data = '-10'
+                self.urls = (self.data_uri,'twist', "/stop","stop","/controller","controller")
+                self.data = '-10';
+                self.port=int(rospy.get_param("~port","8080"));
                 self.request_sub = rospy.Subscriber("odom", Odometry, self.callback)
                 #self.data_uri2 = rospy.get_param("data_uri","/pose");
                 rospy.logwarn("running")
@@ -43,10 +55,18 @@ class twist_converter:
         def callback(self,msg):
                 #get the data from the message and store as a string
                 try:
-                        self.data = str(msg.pose.pose.position.x)#'['+msg.position.x+','msg.position.y+','msg.position.z+']+['+msg.orientation.x+','+msg.orientation.y+','+msg.orientation.z+','+msg.orientation.w+']';
+                        self.data = str(msg.pose.pose.position.x)#'['+msg.position.x+','msg.position.y+','msg.position.z+']+['+msg.orientat
+ion.x+','+msg.orientation.y+','+msg.orientation.z+','+msg.orientation.w+']';
                 except Exception, err:
                         rospy.logwarn("Cannot convert the Pose message due to %s" % err)
 
+class controller:
+        def __init__(self):
+                self.render = web.template.render('templates/')
+        def GET(self):
+                return self.render.stage("",None)
+        def POST(self):
+                return self.render.stage("",None)
 class stop:
         def GET(self):
                 return exit(0)
@@ -60,6 +80,7 @@ class twist:
         def process(self):
                 global tc
                 msg=Twist();
+                robot_id=0;
                 i = web.input();
                 try:
                         if hasattr(i, "lx"):
@@ -74,8 +95,10 @@ class twist:
                                 msg.angular.y = float(i.ay)
                         if hasattr(i, "az"):
                                 msg.angular.z = float(i.az)
-
-                        tc.publisher.publish(msg);
+                        if hasattr(i, "id"):
+                                robot_id = int(i.id)
+                        #msg.linear.z = -0.0049
+                        if robot_id < tc.num_robots: tc.publishers[robot_id].publish(msg);
                 except Exception, err:
                         rospy.logwarn("Cannot convert/publish due to %s" % err)
 
@@ -91,12 +114,16 @@ app = web.application(tc.urls, globals())
 
 if __name__ == "__main__":
         wsgifunc = app.wsgifunc()
-        wsgifunc = web.httpserver.StaticMiddleware(wsgifunc)
-        server = web.httpserver.WSGIServer(("0.0.0.0", 8080),wsgifunc)
-        print "http://%s:%d/%s" % ("0.0.0.0", 8080, tc.urls)
+        wsgifunc = web.httpserver.StaticMiddleware(wsgifunc);
+        #server = web.httpserver.WSGIServer(("0.0.0.0", 8080),wsgifunc)
+        server = web.httpserver.WSGIServer(("0.0.0.0", tc.port),wsgifunc)
+        print "http://%s:%d/%s" % ("0.0.0.0", tc.port, tc.urls)
         try:
                 server.start()
         except (KeyboardInterrupt, SystemExit):
                 server.stop()
                 print "Shutting down service"
-                tc.publisher.publish(Twist())
+                msg=Twist();
+                msg.linear.z = -0.0049;
+                for i in range(tc.num_robots):
+                         tc.publishers[i].publish(msg)
