@@ -35,30 +35,32 @@ class twist_converter:
                 rospy.init_node('twist_converter', anonymous=True)
                 self.num_robots=int(rospy.get_param('~num_robots',1))
                 self.publishers = [None]*self.num_robots; 
+                self.subscribers = [None]*self.num_robots; 
                 if rospy.has_param('~robot_prefix'): #if there is a robot prefix assume that there is actually one or more
                 	#full_param_name = rospy.search_param('robot_prefix')
                 	#robot_prefix = rospy.get_param(full_param_name)
                 	robot_prefix=rospy.get_param('~robot_prefix')
                 	for r in range(self.num_robots):
                 		self.publishers[r]=rospy.Publisher(robot_prefix+str(r)+'/cmd_vel',Twist);
+                                self.subscribers[r] = rospy.Subscriber(robot_prefix+str(r)+'/odom', Odometry, self.callback, r)
                 else: # if no robot prefix, assume that there is only one robot
-                	self.publishers[0] = rospy.Publisher('cmd_vel',Twist);
+                	self.publishers[0] = rospy.Publisher('cmd_vel',Twist);rospy.logwarn("assuming /cmd_vel, number of robots actually"+str(self.num_robots))
+                        self.subscribers[0] = rospy.Subscriber("odom", Odometry, self.callback, 0)
 
                 self.data_uri = rospy.get_param("data_uri","/twist");
                 self.urls = (self.data_uri,'twist', "/stop","stop","/controller","controller")
-                self.data = '-10';
+                self.data = ['-10']*self.num_robots;
                 self.port=int(rospy.get_param("~port","8080"));
-                self.request_sub = rospy.Subscriber("odom", Odometry, self.callback)
                 #self.data_uri2 = rospy.get_param("data_uri","/pose");
                 rospy.logwarn("running")
 
-        def callback(self,msg):
+        def callback(self,msg,id):
                 #get the data from the message and store as a string
                 try:
-                        self.data = str(msg.pose.pose.position.x)#'['+msg.position.x+','msg.position.y+','msg.position.z+']+['+msg.orientat
-ion.x+','+msg.orientation.y+','+msg.orientation.z+','+msg.orientation.w+']';
+                        self.data[id] = str(msg.pose.pose.position.x)#'['+msg.position.x+','msg.position.y+','msg.position.z+']+['+msg.orientation.x+','+msg.orientation.y+','+msg.
+orientation.z+','+msg.orientation.w+']';
                 except Exception, err:
-                        rospy.logwarn("Cannot convert the Pose message due to %s" % err)
+                        rospy.logwarn("Cannot convert the Pose message due to %s for robot %s" % err, id)
 
 class controller:
         def __init__(self):
@@ -102,7 +104,7 @@ class twist:
                 except Exception, err:
                         rospy.logwarn("Cannot convert/publish due to %s" % err)
 
-                data = tc.data;
+                data = tc.data[robot_id];
                 size = len(data);
                 web.header("Content-Length", str(size)) # Set the Header
                 #output to browser
