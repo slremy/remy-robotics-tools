@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<style>
+			body {
+				margin: 0px;
+				padding: 0px;
+			}
+			</style>
+			<script>
+				base_url = window.location.protocol + "//" + window.location.host			
+			</script>
+	</head>
+	<body>
+		<canvas id="myCanvas" width="600" height="400"></canvas>
+		<script>
+			var L = document.getElementById('myCanvas').width;
+			var R = 20;
+			var Startx = 5;
+			var Starty = 100;
+			
+			var dist = L/2;
+			var alpha = 0;
+			
+			
+			function getstate(url)
+			{
+				
+				var req = new XMLHttpRequest();
+				var data=[];
+				var now = new Date();
+				req.open("GET", url, false); 
+				req.send(null);
+				if(req.status == 200) {
+					data=req.response.split(" ");
+					data[0]=2.3*1000*parseFloat(data[0])+L/2;
+					data[1]=parseFloat(data[1]);
+					//console.log(data)
+				}else{
+				
+					data[0]=(90*Math.sin(now.getTime()/60 * Math.PI/180));
+					data[1]=0
+				}
+				return data
+			}
+		</script>
+
+		<script>
+			var canvas = document.getElementById('myCanvas');
+			var context = canvas.getContext('2d');
+
+ 
+			function circle(x, y, r, color){
+				context.fillStyle = color;
+				context.beginPath();
+				context.arc(x, y, r, 0, Math.PI*2, true);
+				context.closePath();
+				context.fill();
+			}
+
+			function ball(x,y,r,color){
+				//ball properties
+				this.x = x;
+				this.y = y;
+				this.r = r;
+				this.color = color;
+				//ball methods
+				this.update = function(){
+					context.fillStyle = "#FFFFFF";
+					context.rect(0, 0, canvas.width, canvas.height);
+					context.fill();
+
+					data=getstate(base_url+"/state?");
+					dist = data[0];
+					alpha = data[1]
+					this.x= Startx + ((dist*Math.cos(alpha * Math.PI/180))-(R*Math.sin(alpha * Math.PI/180)));
+					this.y= Starty + ((-dist*Math.sin(alpha * Math.PI/180))-(R*Math.cos(alpha * Math.PI/180)));
+
+					context.beginPath();
+					context.moveTo(Startx, Starty);
+					var Xb = Startx + (L*Math.cos(alpha * Math.PI/180));
+					var Yb = Starty + (-L*Math.sin(alpha * Math.PI/180));
+					context.lineTo(Xb, Yb);
+					context.stroke();
+
+				}
+				this.draw = function(){
+				//refresh canvas
+					circle(this.x, this.y, this.r, this.color);
+				}
+			}
+
+			function init(){
+				myball = new ball(Startx,Starty,R,"#FF3333");
+				intervalId = setInterval(updateSystem, 1000/40);
+			}
+			function updateSystem(){				
+				myball.update();
+				myball.draw();
+			}
+			 
+			init();
+
+		</script>
+		
+	</body>
+</html>
