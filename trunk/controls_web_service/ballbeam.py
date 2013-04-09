@@ -84,13 +84,14 @@ u_time = clock();
 
 web.config.debug = False;
 urls = (
+    '/', 'index',
     '/init','initcontroller',
     '/state','state',
     '/u','controller',
     '/stop','closecontroller'
 )
 app = web.application(urls, globals())
-
+render = web.template.render('.')
 
 def calculateControl(signum, _):
 	global Theta, Dist, U
@@ -98,8 +99,8 @@ def calculateControl(signum, _):
 	U.append(u);
 	theta =  P * U[-1] - Q * Theta[-1] - R * Theta[-2]
 	if theta > theta_high: theta = theta_high
-  elif theta < -theta_high: theta = -theta_high
-  
+	elif theta < -theta_high: theta = -theta_high
+	
 	Theta.append(theta);
 	x =  L * Theta[-1]/16.0 - M * Dist[-1] - N * Dist[-2]; #alpha = theta/16 eqn 2.2.2 EEE490
 	Dist.append(x);
@@ -110,6 +111,10 @@ class closecontroller:
         return exit(0)
     def POST(self):
         return exit(0)
+
+class index:
+    def GET(self):
+        return render.index();
 
 class initcontroller:
     def GET(self):
@@ -160,7 +165,7 @@ if __name__ == "__main__":
 	print "http://%s:%d/" % ("0.0.0.0", port)
 	try:
 		server.start()
-  except (KeyboardInterrupt, SystemExit):
+	except (KeyboardInterrupt, SystemExit):
 		server.stop()
 		print exc_info()[0]
 		print "Shutting down service"
