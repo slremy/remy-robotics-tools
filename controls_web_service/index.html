@@ -126,6 +126,50 @@
 			init();
 
 		</script>
-		
+	 	<script>
+			var keyPressed = {};
+			var u = 0;
+			var umax = 10;
+
+			document.addEventListener('keydown', function(e) {
+                             keyPressed[e.keyCode] = true;
+                             }, false);
+			document.addEventListener('keyup', function(e) {
+                             keyPressed[e.keyCode] = false;
+                             }, false);
+
+			function initKeyboard(){
+				intervalId = setInterval(checkKeyboard, 1000/30);
+			}
+			function sendControl(value)
+			{
+				var xmlHttp = null;
+				xmlHttp = new XMLHttpRequest();
+				xmlHttp.open( "GET", base_url + "/u?value="+value, true );
+				xmlHttp.send( null );
+				return  
+			}
+			
+			function checkKeyboard(){				
+				if (keyPressed["38"])
+				{
+					u=umax;
+					sendControl(u);
+				}
+				else if (keyPressed["40"]) 
+				{
+					u=-umax;
+					sendControl(u);
+				}
+				else
+				{
+					u=0;
+				}
+				
+			}
+			 
+			initKeyboard();
+
+		</script>
 	</body>
 </html>
