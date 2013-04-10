@@ -104,7 +104,6 @@ def calculateControl(signum, _):
 	Theta.append(theta);
 	x =  L * Theta[-1]/16.0 - M * Dist[-1] - N * Dist[-2]; #alpha = theta/16 eqn 2.2.2 EEE490
 	Dist.append(x);
-	print str(repr(t)) + ","+ str(Dist[-1])+","+ str(Theta[-1])+","+str(U[-1])+","+ str(repr(u_time))+",sekou"
 
 class closecontroller:
     def GET(self):
