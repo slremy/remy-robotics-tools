@@ -1,6 +1,58 @@
-diff -urN emptydir/CMakeLists.txt ros-stacks/catkin_ws/src/testgazebo/CMakeLists.txt
---- emptydir/CMakeLists.txt	1970-01-01 00:00:00.000000000 +0000
-+++ ros-stacks/catkin_ws/src/testgazebo/CMakeLists.txt	2013-04-30 00:01:22.441943000 +0000
+diff -urN ./src/CMakeLists.txt ../ros-stacks/catkin_ws/src/CMakeLists.txt
+--- ./src/CMakeLists.txt	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/CMakeLists.txt	2013-03-22 21:21:58.000000000 +0000
+@@ -0,0 +1,48 @@
++# toplevel CMakeLists.txt for a catkin workspace
++# catkin/cmake/toplevel.cmake
++
++cmake_minimum_required(VERSION 2.8.3)
++
++set(CATKIN_TOPLEVEL TRUE)
++
++# include catkin directly or via find_package()
++if(EXISTS "${CMAKE_SOURCE_DIR}/catkin/cmake/all.cmake" AND EXISTS "${CMAKE_SOURCE_DIR}/catkin/CMakeLists.txt")
++  set(catkin_EXTRAS_DIR "${CMAKE_SOURCE_DIR}/catkin/cmake")
++  # include all.cmake without add_subdirectory to let it operate in same scope
++  include(catkin/cmake/all.cmake NO_POLICY_SCOPE)
++  add_subdirectory(catkin)
++
++else()
++  # use either CMAKE_PREFIX_PATH explicitly passed to CMake as a command line argument
++  # or CMAKE_PREFIX_PATH from the environment
++  if(NOT DEFINED CMAKE_PREFIX_PATH)
++    if(NOT "$ENV{CMAKE_PREFIX_PATH}" STREQUAL "")
++      string(REPLACE ":" ";" CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH})
++    endif()
++  endif()
++
++  # list of catkin workspaces
++  set(catkin_search_path "")
++  foreach(path ${CMAKE_PREFIX_PATH})
++    if(EXISTS "${path}/.catkin")
++      list(FIND catkin_search_path ${path} _index)
++      if(_index EQUAL -1)
++        list(APPEND catkin_search_path ${path})
++      endif()
++    endif()
++  endforeach()
++
++  # search for catkin in all workspaces
++  set(CATKIN_TOPLEVEL_FIND_PACKAGE TRUE)
++  find_package(catkin QUIET
++    NO_POLICY_SCOPE
++    PATHS ${catkin_search_path}
++    NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
++  unset(CATKIN_TOPLEVEL_FIND_PACKAGE)
++
++  if(NOT catkin_FOUND)
++    message(FATAL_ERROR "find_package(catkin) failed. catkin was neither found in the workspace nor in the CMAKE_PREFIX_PATH. One reason may be that no ROS setup.sh was sourced before.")
++  endif()
++endif()
++
++catkin_workspace()
+diff -urN ./src/testgazebo/CMakeLists.txt ../ros-stacks/catkin_ws/src/testgazebo/CMakeLists.txt
+--- ./src/testgazebo/CMakeLists.txt	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/CMakeLists.txt	2013-04-30 00:01:22.441943000 +0000
 @@ -0,0 +1,128 @@
 +cmake_minimum_required(VERSION 2.8.3)
 +project(testgazebo)
@@ -130,17 +182,90 @@ diff -urN emptydir/CMakeLists.txt ros-stacks/catkin_ws/src/testgazebo/CMakeLists
 +
 +## Add folders to be run by python nosetests
 +# catkin_add_nosetests(test)
-diff -urN emptydir/launch/testgazebo.launch ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch
---- emptydir/launch/testgazebo.launch	1970-01-01 00:00:00.000000000 +0000
-+++ ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch	2013-04-30 00:44:08.561939582 +0000
-@@ -0,0 +1,4 @@
+diff -urN ./src/testgazebo/launch/testgazebo.launch ../ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch
+--- ./src/testgazebo/launch/testgazebo.launch	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch	2013-05-01 13:59:19.141940942 +0000
+@@ -0,0 +1,6 @@
 +<launch>
-+	<node name="simulator" pkg="testgazebo" type="mygazebo" required="True"/>
++	<!--node name="simulator" pkg="testgazebo" type="mygazebo" required="True"/-->
++	<!--node name="simulator" pkg="testgazebo" type="mygazebo" args="$(find testgazebo)/worlds/my.world" required="True"/-->
++	<node name="simulator" pkg="testgazebo" type="mygazebo" args="$(find testgazebo)/worlds/my.world" required="True"/>
 +	<node name="mygzstats" pkg="testgazebo" type="mygzstats" required="True"/>
 +</launch>
-diff -urN emptydir/package.xml ros-stacks/catkin_ws/src/testgazebo/package.xml
---- emptydir/package.xml	1970-01-01 00:00:00.000000000 +0000
-+++ ros-stacks/catkin_ws/src/testgazebo/package.xml	2013-04-30 00:01:22.441943000 +0000
+diff -urN ./src/testgazebo/package.xml ../ros-stacks/catkin_ws/src/testgazebo/package.xml
+--- ./src/testgazebo/package.xml	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/package.xml	2013-04-30 00:01:22.441943000 +0000
+@@ -0,0 +1,53 @@
++<?xml version="1.0"?>
++<package>
++  <name>testgazebo</name>
++  <version>0.0.0</version>
++  <description>The testgazebo package</description>
++
++  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
++  <!-- Example:  -->
++  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
++  <maintainer email="ubuntu@todo.todo">ubuntu</maintainer>
++
++
++  <!-- One license tag required, multiple allowed, one license per tag -->
++  <!-- Commonly used license strings: -->
++  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
++# See http://ros.org/doc/groovy/api/catkin/html/adv_user_guide/variables.html
++
++## Mark executable scripts (Python etc.) for installation
++## in contrast to setup.py, you can choose the destination
++# install(PROGRAMS
++#   scripts/my_python_script
++#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
++# )
++
++## Mark executables and/or libraries for installation
++# install(TARGETS testgazebo testgazebo_node
++#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
++#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
++#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
++# )
++
++## Mark cpp header files for installation
++# install(DIRECTORY include/${PROJECT_NAME}/
++#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
++#   FILES_MATCHING PATTERN "*.h"
++#   PATTERN ".svn" EXCLUDE
++# )
++
++## Mark other files for installation (e.g. launch and bag files, etc.)
++# install(FILES
++#   # myfile1
++#   # myfile2
++#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
++# )
++
++#############
++## Testing ##
++#############
++
++## Add gtest based cpp test target and link libraries
++# catkin_add_gtest(${PROJECT_NAME}-test test/test_testgazebo.cpp)
++# if(TARGET ${PROJECT_NAME}-test)
++#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
++# endif()
++
++## Add folders to be run by python nosetests
++# catkin_add_nosetests(test)
+diff -urN ./src/testgazebo/launch/testgazebo.launch ../ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch
+--- ./src/testgazebo/launch/testgazebo.launch	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/launch/testgazebo.launch	2013-05-01 13:59:19.141940942 +0000
+@@ -0,0 +1,6 @@
++<launch>
++	<!--node name="simulator" pkg="testgazebo" type="mygazebo" required="True"/-->
++	<!--node name="simulator" pkg="testgazebo" type="mygazebo" args="$(find testgazebo)/worlds/my.world" required="True"/-->
++	<node name="simulator" pkg="testgazebo" type="mygazebo" args="$(find testgazebo)/worlds/my.world" required="True"/>
++	<node name="mygzstats" pkg="testgazebo" type="mygzstats" required="True"/>
++</launch>
+diff -urN ./src/testgazebo/package.xml ../ros-stacks/catkin_ws/src/testgazebo/package.xml
+--- ./src/testgazebo/package.xml	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/package.xml	2013-04-30 00:01:22.441943000 +0000
 @@ -0,0 +1,53 @@
 +<?xml version="1.0"?>
 +<package>
@@ -196,15 +321,63 @@ diff -urN emptydir/package.xml ros-stacks/catkin_ws/src/testgazebo/package.xml
 +  </export>
 +</package>
 \ No newline at end of file
-diff -urN emptydir/scripts/mygazebo ros-stacks/catkin_ws/src/testgazebo/scripts/mygazebo
---- emptydir/scripts/mygazebo	1970-01-01 00:00:00.000000000 +0000
-+++ ros-stacks/catkin_ws/src/testgazebo/scripts/mygazebo	2013-04-30 00:45:00.505960204 +0000
-@@ -0,0 +1,2 @@
+diff -urN ./src/testgazebo/scripts/mygazebo ../ros-stacks/catkin_ws/src/testgazebo/scripts/mygazebo
+--- ./src/testgazebo/scripts/mygazebo	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/scripts/mygazebo	2013-05-01 19:40:05.335033001 +0000
+@@ -0,0 +1,5 @@
 +#!/bin/sh
-+DISPLAY=:1 gazebo
-diff -urN emptydir/scripts/mygzstats ros-stacks/catkin_ws/src/testgazebo/scripts/mygzstats
---- emptydir/scripts/mygzstats	1970-01-01 00:00:00.000000000 +0000
-+++ ros-stacks/catkin_ws/src/testgazebo/scripts/mygzstats	2013-04-30 00:45:25.241934289 +0000
++#DISPLAY=:1 gazebo $@
++#DISPLAY=:1 gdb -x /home/ubuntu/gdbrun --args gazebo $@
++DISPLAY=:1 gdb -x /home/ubuntu/gdbrun --args gzserver $@ &
++DISPLAY=:1 gdb -x /home/ubuntu/gdbrun2 --args gzclient
+diff -urN ./src/testgazebo/scripts/mygzstats ../ros-stacks/catkin_ws/src/testgazebo/scripts/mygzstats
+--- ./src/testgazebo/scripts/mygzstats	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/scripts/mygzstats	2013-04-30 00:45:25.241934289 +0000
 @@ -0,0 +1,2 @@
 +#!/bin/sh
 +gzstats
+diff -urN ./src/testgazebo/worlds/my.world ../ros-stacks/catkin_ws/src/testgazebo/worlds/my.world
+--- ./src/testgazebo/worlds/my.world	1970-01-01 00:00:00.000000000 +0000
++++ ../ros-stacks/catkin_ws/src/testgazebo/worlds/my.world	2013-04-30 01:09:30.205943001 +0000
+@@ -0,0 +1,39 @@
++<?xml version="1.0" ?>
++<sdf version="1.3">
++  <world name="default">
++    <physics type="ode">
++      <gravity>0 0 9.8</gravity>
++      <ode>
++        <solver>
++          <type>quick</type>
++          <dt>0.001</dt>
++          <iters>40</iters>
++          <sor>1.0</sor>
++        </solver>
++        <constraints>
++          <cfm>0.0</cfm>
++          <erp>0.2</erp>
++          <contact_max_correcting_vel>100.0</contact_max_correcting_vel>
++          <contact_surface_layer>0.0</contact_surface_layer>
++        </constraints>
++      </ode>
++    </physics>
++    <!-- A global light source -->
++    <include>
++      <uri>model://sun</uri>
++    </include>
++    <!-- A ground plane -->
++    <include>
++      <uri>model://ground_plane</uri>
++    </include>
++    <include>
++      <uri>model://create</uri>
++      <pose>0 0 0.5 0 0 0</pose>
++    </include>
++
++    <include>
++      <uri>model://camera</uri>
++      <pose>0 0 1 0 0 0</pose>
++    </include>
++  </world>
++</sdf>
+
+
