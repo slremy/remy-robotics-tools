@@ -6,6 +6,7 @@ sudo apt-get -y update
 sudo apt-get -y install  ros-groovy-stage
 sudo apt-get -y install python-rosinstall
 sudo apt-get -y install xvfb
+sudo apt-get -y install gdb
 
 mkdir ros-stacks
 echo "source /opt/ros/groovy/setup.bash" >> ~/.bashrc
