@@ -27,3 +27,12 @@ echo "export PATH=/home/$USER/local/bin:\$PATH" >> ~/.bashrc
 echo "export PKG_CONFIG_PATH=/home/$USER/local/lib/pkgconfig:\$PKG_CONFIG_PATH" >> ~/.bashrc
 echo "source /home/$USER/local/share/gazebo/setup.sh" >> ~/.bashrc
 source ~/.bashrc
+
+#install Stage simulator manually
+svn co https://code.ros.org/svn/ros-pkg/stacks/stage/trunk stageros
+#could remove this step later and get all of these files, but until then..
+cd ~/ros-stacks/stageros
+wget https://remy-robotics-tools.googlecode.com/svn/trunk/ros_gazebo/complete_stage_patch.patch
+patch -p0 -i complete_stage_patch.patch
+rosmake stageros
+#how to verify installation?
