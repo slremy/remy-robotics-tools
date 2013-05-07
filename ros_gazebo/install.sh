@@ -41,3 +41,8 @@ rosmake stageros
 #how to verify installation?
 cd ~
 
+
+#install mjpeg_server
+#cd ~/ros-stacks/catkin_ws/src
+#git clone https://github.com/RobotWebTools/mjpeg_server.git
+#cd mjpeg_server
