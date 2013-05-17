@@ -42,9 +42,14 @@ rosmake stageros
 #how to verify installation?
 cd ~
 
+#install gazebo_simulator (with ROS)
+sudo apt-get install -y build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libtar-dev libcurl4-openssl-dev libcegui-mk2-dev
+sudo apt-get install -y ros-groovy-bullet ros-groovy-xacro ros-groovy-dynamic-reconfigure ros-groovy-urdf ros-groovy-ivcon ros-groovy-driver-base ros-groovy-pcl-ros
+cd ~/ros-stacks/
+hg clone https://bitbucket.org/osrf/simulator_gazebo
+rosmake simulator_gazebo
 
 #install mjpeg_server
-
 cd ~/ros-stacks/catkin_ws/src
 git clone https://github.com/RobotWebTools/mjpeg_server.git
 cd ~/ros-stacks/catkin_ws/
