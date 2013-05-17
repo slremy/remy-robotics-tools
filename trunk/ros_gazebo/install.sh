@@ -3,7 +3,8 @@ sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get -y update
-sudo apt-get -y install  ros-groovy-stage
+sudo apt-get -y install ros-groovy-stage
+sudo apt-get -y install ros-groovy-image-view
 sudo apt-get -y install python-rosinstall
 sudo apt-get -y install xvfb
 sudo apt-get -y install gdb
@@ -43,6 +44,8 @@ cd ~
 
 
 #install mjpeg_server
-#cd ~/ros-stacks/catkin_ws/src
-#git clone https://github.com/RobotWebTools/mjpeg_server.git
-#cd mjpeg_server
+
+cd ~/ros-stacks/catkin_ws/src
+git clone https://github.com/RobotWebTools/mjpeg_server.git
+cd ~/ros-stacks/catkin_ws/
+catkin_make
