@@ -15,21 +15,21 @@ echo "export ROS_PACKAGE_PATH=/home/$USER/ros-stacks:\$ROS_PACKAGE_PATH" >> ~/.b
 
 #should include the catkin workspace here soon!
 
-#install gazebo
-sudo apt-get -y install build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libtar-dev libcurl4-openssl-dev libcegui-mk2-dev
-hg clone https://bitbucket.org/osrf/gazebo gazebo
-cd gazebo
-mkdir build
-cd build
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/home/$USER/local ../
-make -j4
-make install
-cd ~
-echo "export LD_LIBRARY_PATH=/home/$USER/local/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
-echo "export PATH=/home/$USER/local/bin:\$PATH" >> ~/.bashrc
-echo "export PKG_CONFIG_PATH=/home/$USER/local/lib/pkgconfig:\$PKG_CONFIG_PATH" >> ~/.bashrc
-echo "source /home/$USER/local/share/gazebo/setup.sh" >> ~/.bashrc
-source ~/.bashrc
+##install gazebo
+#sudo apt-get -y install build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libtar-dev libcurl4-openssl-dev libcegui-mk2-dev
+#hg clone https://bitbucket.org/osrf/gazebo gazebo
+#cd gazebo
+#mkdir build
+#cd build
+#cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/home/$USER/local ../
+#make
+#make install
+#cd ~
+#echo "export LD_LIBRARY_PATH=/home/$USER/local/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+#echo "export PATH=/home/$USER/local/bin:\$PATH" >> ~/.bashrc
+#echo "export PKG_CONFIG_PATH=/home/$USER/local/lib/pkgconfig:\$PKG_CONFIG_PATH" >> ~/.bashrc
+#echo "source /home/$USER/local/share/gazebo/setup.sh" >> ~/.bashrc
+#source ~/.bashrc
 
 #install Stage simulator manually
 cd ~/ros-stacks/
