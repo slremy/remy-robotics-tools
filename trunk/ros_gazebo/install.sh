@@ -13,7 +13,13 @@ mkdir ros-stacks
 echo "source /opt/ros/groovy/setup.bash" >> ~/.bashrc
 echo "export ROS_PACKAGE_PATH=/home/$USER/ros-stacks:\$ROS_PACKAGE_PATH" >> ~/.bashrc
 
-#should include the catkin workspace here soon!
+#Create catkin workspace (untested)
+# http://www.ros.org/wiki/catkin/Tutorials/create_a_workspace
+mkdir ~/ros-stacks/catkin_ws
+mkdir ~/ros-stacks/catkin_ws/src
+cd ~/ros-stacks/catkin_ws/src
+catkin_init_workspace
+cd ~
 
 ##install gazebo
 #sudo apt-get -y install build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libtar-dev libcurl4-openssl-dev libcegui-mk2-dev
