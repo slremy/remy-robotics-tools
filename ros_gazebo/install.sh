@@ -9,6 +9,9 @@ sudo apt-get -y install python-rosinstall
 sudo apt-get -y install xvfb
 sudo apt-get -y install gdb
 
+sudo rosdep init
+rosdep update
+
 mkdir ros-stacks
 echo "source /opt/ros/groovy/setup.bash" >> ~/.bashrc
 echo "export ROS_PACKAGE_PATH=/home/$USER/ros-stacks:\$ROS_PACKAGE_PATH" >> ~/.bashrc
