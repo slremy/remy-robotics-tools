@@ -13,6 +13,8 @@ mkdir ros-stacks
 echo "source /opt/ros/groovy/setup.bash" >> ~/.bashrc
 echo "export ROS_PACKAGE_PATH=/home/$USER/ros-stacks:\$ROS_PACKAGE_PATH" >> ~/.bashrc
 
+source ~/.bashrc
+
 #Create catkin workspace (untested)
 # http://www.ros.org/wiki/catkin/Tutorials/create_a_workspace
 mkdir ~/ros-stacks/catkin_ws
