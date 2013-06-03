@@ -57,7 +57,7 @@ class twist_converter:
         def callback(self,msg,id):
                 #get the data from the message and store as a string
                 try:
-                        self.data[id] = str(msg.position.x+','msg.position.y+','msg.position.z+','+msg.orientation.x+','+msg.orientation.y+','+msg.orientation.z+','+msg.orientation.w);
+                        self.data[id] = str(msg.position.x+','+msg.position.y+','+msg.position.z+','+msg.orientation.x+','+msg.orientation.y+','+msg.orientation.z+','+msg.orientation.w);
                 except Exception, err:
                         rospy.logwarn("Cannot convert the Pose message due to %s for robot %s" % err, id)
 
