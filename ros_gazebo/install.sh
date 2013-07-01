@@ -5,6 +5,7 @@ wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get -y update
 sudo apt-get -y install ros-groovy-stage
 sudo apt-get -y install ros-groovy-image-view
+sudo apt-get -y install ros-groovy-rxtools
 sudo apt-get -y install python-rosinstall
 sudo apt-get -y install xvfb
 sudo apt-get -y install gdb
@@ -52,6 +53,11 @@ patch -p0 -i complete_stage_patch.patch
 rosmake stageros
 #how to verify installation?
 cd ~
+
+#install ROS web service manually
+cd ~/ros-stacks/
+svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
+rosmake ros_web_service
 
 #install gazebo_simulator (with ROS)
 sudo apt-get install -y build-essential libtinyxml-dev libtbb-dev libxml2-dev libqt4-dev pkg-config  libprotoc-dev libfreeimage-dev libprotobuf-dev protobuf-compiler libboost-all-dev freeglut3-dev cmake libogre-dev libtar-dev libcurl4-openssl-dev libcegui-mk2-dev
