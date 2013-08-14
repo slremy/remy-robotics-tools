@@ -83,20 +83,19 @@ def calculateControl(signum, _):
   theta1 =  P * U[-1][1] - Q * Theta[-1][1] - R * Theta[-2][1]
 	if theta1 > theta_high: theta1 = theta_high
   elif theta1 < -theta_high: theta1 = -theta_high
- 
+
   Theta.append((theta0,theta1));
 	x0 =  L * Theta[-1][0]/16.0 - M * Dist[-1][0] - N * Dist[-2][0]; #alpha = theta/16 eqn 2.2.2 EEE490
 
-	if x0 > r_high: x0 = r_high;
-	elif x0 < -r_high: x0 = -r_high;
+   if x0 > r_high: x0 = r_high;
+  elif x0 < -r_high: x0 = -r_high;
 
-	x1 =  L * Theta[-1][1]/16.0 - M * Dist[-1][1] - N * Dist[-2][1]; #alpha = theta/16 eqn 2.2.2 EEE490
+  x1 =  L * Theta[-1][1]/16.0 - M * Dist[-1][1] - N * Dist[-2][1]; #alpha = theta/16 eqn 2.2.2 EEE490
 
-	if x1 > r_high: x1 = r_high;
-	elif x1 < -r_high: x1 = -r_high;
-
-	Dist.append((x0,x1));
-	#print str(repr(t)) + ","+ str(Dist[-1])+","+ str(Theta[-1])+","+str(U[-1])+","+ str(repr(u_time))+ str(repr(t))+",sekou"
+  if x1 > r_high: x1 = r_high; 
+  elif x1 < -r_high: x1 = -r_high;
+  Dist.append((x0,x1));
+   #print str(repr(t)) + ","+ str(Dist[-1])+","+ str(Theta[-1])+","+str(U[-1])+","+ str(repr(u_time))+ str(repr(t))+",sekou"
 
 class closecontroller:
     def GET(self):
