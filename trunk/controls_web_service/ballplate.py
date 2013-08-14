@@ -4,12 +4,15 @@ import signal
 from collections import deque
 from sys import exit, exc_info, argv
 
+
 try:
 	port = int(argv[1])
 except:
 	port = 8080;
 
 clock = timeit.default_timer;
+
+
 
 m = 0.111;
 R = 0.015;
@@ -61,13 +64,13 @@ u_time = clock();
 
 web.config.debug = False;
 urls = (
-    '/', 'index',
-    '/init','initcontroller',
-    '/state','state',
-    '/u','controller',
-    '/u3','controller3',
-    '/stop','closecontroller'
-)
+		'/', 'index',
+		'/init','initcontroller',
+		'/state','state',
+		'/u','controller',
+		'/u3','controller3',
+		'/stop','closecontroller'
+		)
 
 app = web.application(urls, globals())
 render = web.template.render('.')
@@ -78,24 +81,25 @@ def calculateControl(signum, _):
 	U.append(u);
 	theta0 =  P * U[-1][0] - Q * Theta[-1][0] - R * Theta[-2][0]
 	if theta0 > theta_high: theta0 = theta_high
-  elif theta0 < -theta_high: theta0 = -theta_high
-
-  theta1 =  P * U[-1][1] - Q * Theta[-1][1] - R * Theta[-2][1]
+	elif theta0 < -theta_high: theta0 = -theta_high
+	
+	theta1 =  P * U[-1][1] - Q * Theta[-1][1] - R * Theta[-2][1]
 	if theta1 > theta_high: theta1 = theta_high
-  elif theta1 < -theta_high: theta1 = -theta_high
-
-  Theta.append((theta0,theta1));
+	elif theta1 < -theta_high: theta1 = -theta_high
+	
+	Theta.append((theta0,theta1));
 	x0 =  L * Theta[-1][0]/16.0 - M * Dist[-1][0] - N * Dist[-2][0]; #alpha = theta/16 eqn 2.2.2 EEE490
-
-   if x0 > r_high: x0 = r_high;
-  elif x0 < -r_high: x0 = -r_high;
-
-  x1 =  L * Theta[-1][1]/16.0 - M * Dist[-1][1] - N * Dist[-2][1]; #alpha = theta/16 eqn 2.2.2 EEE490
-
-  if x1 > r_high: x1 = r_high; 
-  elif x1 < -r_high: x1 = -r_high;
-  Dist.append((x0,x1));
-   #print str(repr(t)) + ","+ str(Dist[-1])+","+ str(Theta[-1])+","+str(U[-1])+","+ str(repr(u_time))+ str(repr(t))+",sekou"
+	
+	if x0 > r_high: x0 = r_high;
+	elif x0 < -r_high: x0 = -r_high;
+	
+	x1 =  L * Theta[-1][1]/16.0 - M * Dist[-1][1] - N * Dist[-2][1]; #alpha = theta/16 eqn 2.2.2 EEE490
+	
+	if x1 > r_high: x1 = r_high;
+	elif x1 < -r_high: x1 = -r_high;
+	
+	Dist.append((x0,x1));
+	#print str(repr(t)) + ","+ str(Dist[-1])+","+ str(Theta[-1])+","+str(U[-1])+","+ str(repr(u_time))+ str(repr(t))+",sekou"
 
 class closecontroller:
     def GET(self):
@@ -127,7 +131,7 @@ class initcontroller:
         f = ""
         web.header("Content-Type", "text/plain") # Set the Header
         return str(f)
-		
+
 class state:
     def GET(self):
         return self.process();
