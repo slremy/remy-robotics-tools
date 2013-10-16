@@ -103,7 +103,7 @@ void sendToRobot(char httpDataRequest[])
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
 		res = curl_easy_perform(curl);
-		printf("send: %s\n",url); 
+//		printf("send: %s\n",url); 
 		/* always cleanup */ 
 		curl_easy_cleanup(curl);
 	}
@@ -127,8 +127,7 @@ data getFromRobot(char httpDataRequest[])
 
 	if(curl) {
 		sprintf(url,"%s%s%s", _hostname, httpDataRequest, _permissions);
-
-		
+ 		
 		curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_URL, url);
 		
