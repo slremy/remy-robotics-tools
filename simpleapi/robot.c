@@ -57,7 +57,7 @@ void setPermission(char permissions[])
 void moveForward(double velocity)
 {
 	char twist[1024];
-	sprintf(twist,"twist?id=2&lx=%f",velocity);
+	sprintf(twist,"&lx=%f",velocity);
 	sendToRobot(twist);
 	return;
 }
@@ -66,7 +66,7 @@ void moveForward(double velocity)
 void moveAcross(double velocity)
 {
 	char twist[1024];
-	sprintf(twist,"twist?id=2&ly=%f",velocity);
+	sprintf(twist,"&ly=%f",velocity);
 	sendToRobot(twist);
 	return;
 }
@@ -76,7 +76,7 @@ void turn(double angle)
 {
 	double radians = angle/180*_PI;
 	char twist[1024];
-	sprintf(twist,"twist?id=2&az=%f",radians);
+	sprintf(twist,"&az=%f",radians);
 	sendToRobot(twist);	
 	return;
 }
@@ -85,7 +85,7 @@ void turn(double angle)
 void stop(void)
 {
 	char twist[1024];
-	sprintf(twist,"twist?id=2&lx=0&ly=0&lz=0&ax=0&ay=0&az=0");
+	sprintf(twist,"&lx=0&ly=0&lz=0&ax=0&ay=0&az=0");
 	sendToRobot(twist);
 	return;
 }
