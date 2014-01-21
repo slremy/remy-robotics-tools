@@ -3,9 +3,11 @@ sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu precise main" > /etc/apt/sources.list.d/ros-latest.list'
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get -y update
-sudo apt-get -y install ros-groovy-stage
-sudo apt-get -y install ros-groovy-image-view
-sudo apt-get -y install ros-groovy-rxtools
+sudo apt-get -y install ros-hydro-desktop
+sudo apt-get -y install ros-hydro-roslaunch    #may not be needed since ros-hydro-desktop installed
+sudo apt-get -y install ros-hydro-stage
+sudo apt-get -y install ros-hydro-image-view
+sudo apt-get -y install ros-hydro-rxtools
 sudo apt-get -y install python-rosinstall
 sudo apt-get -y install xvfb
 sudo apt-get -y install gdb
@@ -14,7 +16,7 @@ sudo rosdep init
 rosdep update
 
 mkdir ros-stacks
-echo "source /opt/ros/groovy/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
 echo "export ROS_PACKAGE_PATH=/home/$USER/ros-stacks:\$ROS_PACKAGE_PATH" >> ~/.bashrc
 
 source ~/.bashrc
