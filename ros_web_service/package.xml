@@ -1,0 +1,11 @@
+<package>
+  <name>ros_web_service</name>
+  <version>1.0.0</version>
+  <description>
+    This package provides foo capability.
+  </description>
+  <maintainer email="sekouremy@g">Sekou Remy</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
