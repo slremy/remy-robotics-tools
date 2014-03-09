@@ -18,14 +18,23 @@ echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 sudo apt-get -y install python-webpy
 
-#install ROS web service manually
-mkdir ~/ros-stacks
-cd ~/ros-stacks/
-svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
-#rosmake ros_web_service
-##this library isn't catkin ready as yet!
-
 #install gazebo
 sudo apt-get -y install ros-hydro-gazebo-ros-control ros-hydro-gazebo-ros-pkgs
 sudo rosdep init
 rosdep update
+
+#create catkin workspace
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+catkin_init_workspace
+cd ~/catkin_ws
+catkin_make
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+
+#install ROS web service manually
+#mkdir ~/ros-stacks
+#cd ~/ros-stacks/
+#svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
+#rosmake ros_web_service
+##this library isn't catkin ready as yet!
+
