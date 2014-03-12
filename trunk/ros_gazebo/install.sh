@@ -24,7 +24,7 @@ cd ~/catkin_ws/src
 catkin_init_workspace
 cd ~/catkin_ws
 catkin_make
-echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+echo "source ~/catkin_ws/src/devel/setup.bash" >> ~/.bashrc
 echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
@@ -33,4 +33,4 @@ cd ~/catkin_ws/src/
 svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
 cd ~/catkin_ws/
 catkin_make
-source ~/catkin_ws/devel/setup.bash
+source ~/catkin_ws/src/devel/setup.bash
