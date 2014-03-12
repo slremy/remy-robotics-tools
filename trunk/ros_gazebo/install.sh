@@ -6,6 +6,7 @@ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu raring main" > /etc/apt
 wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
 sudo apt-get -y update
 #install ROS with STAGE and GAZEBO
+sudo apt-get -y install ros-hydro-rosbash
 sudo apt-get -y install ros-hydro-stage-ros
 sudo apt-get -y install ros-hydro-gazebo-ros-control ros-hydro-gazebo-ros-pkgs
 sudo apt-get -y install xvfb
