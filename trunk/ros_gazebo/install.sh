@@ -15,6 +15,7 @@ sudo apt-get -y install ros-hydro-mjpeg-server
 
 sudo rosdep init
 rosdep update
+echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
 
 sudo apt-get -y install python-webpy
 
@@ -24,7 +25,6 @@ cd ~/catkin_ws/src
 catkin_init_workspace
 cd ~/catkin_ws
 catkin_make
-echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
 echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
