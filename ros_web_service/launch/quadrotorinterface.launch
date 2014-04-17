@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find hector_gazebo_demo)/launch/outdoor_flight_gazebo.launch"/>
+  <include file="$(find hector_quadrotor_demo)/launch/outdoor_flight_gazebo.launch"/>
   <node pkg="ros_web_service" type="totwistodom_service.py" name="twist_publisher" args="" required = "true">
         <remap to="odom" from="/ground_truth/state" />
   </node>
