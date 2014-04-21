@@ -110,7 +110,7 @@ class twist:
                 web.header("Content-Type", "text/plain") # Set the Header
                 return data
 
-class twist:
+class state:
         def GET(self):
                 return self.process()
         def POST(self):
