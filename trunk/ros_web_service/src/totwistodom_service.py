@@ -48,7 +48,7 @@ class twist_converter:
                         self.subscribers[0] = rospy.Subscriber("odom", Odometry, self.callback, 0)
 
                 self.data_uri = rospy.get_param("data_uri","/twist");
-                self.urls = (self.data_uri,'twist', "/stop","stop","/controller","controller")
+                self.urls = (self.data_uri,'twist', "/stop","stop", "/state","state","/controller","controller")
                 self.data = ['-10']*self.num_robots;
                 self.port=int(rospy.get_param("~port","8080"));
                 #self.data_uri2 = rospy.get_param("data_uri","/pose");
@@ -102,6 +102,30 @@ class twist:
                         if robot_id < tc.num_robots: tc.publishers[robot_id].publish(msg);
                 except Exception, err:
                         rospy.logwarn("Cannot convert/publish due to %s" % err)
+
+                data = tc.data[robot_id];
+                size = len(data);
+                web.header("Content-Length", str(size)) # Set the Header
+                #output to browser
+                web.header("Content-Type", "text/plain") # Set the Header
+                return data
+
+class twist:
+        def GET(self):
+                return self.process()
+        def POST(self):
+                return self.process()
+        def process(self):
+                global tc
+                msg=Twist();
+                robot_id=0;
+                i = web.input();
+                try:
+                        if hasattr(i, "id"):
+                                robot_id = int(i.id)
+                        #msg.linear.z = -0.0049
+                except Exception, err:
+                        rospy.logwarn("Doesn't know what ID %s" % err)
 
                 data = tc.data[robot_id];
                 size = len(data);
