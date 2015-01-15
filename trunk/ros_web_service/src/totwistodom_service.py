@@ -41,10 +41,10 @@ class twist_converter:
                 	#robot_prefix = rospy.get_param(full_param_name)
                 	robot_prefix=rospy.get_param('~robot_prefix')
                 	for r in range(self.num_robots):
-                		self.publishers[r]=rospy.Publisher(robot_prefix+str(r)+'/cmd_vel',Twist);
+                		self.publishers[r]=rospy.Publisher(robot_prefix+str(r)+'/cmd_vel',Twist,queue_size=10);
                                 self.subscribers[r] = rospy.Subscriber(robot_prefix+str(r)+'/odom', Odometry, self.callback, r)
                 else: # if no robot prefix, assume that there is only one robot
-                	self.publishers[0] = rospy.Publisher('cmd_vel',Twist);rospy.logwarn("assuming /cmd_vel, number of robots actually"+str(self.num_robots))
+                	self.publishers[0] = rospy.Publisher('cmd_vel',Twist,queue_size=10);rospy.logwarn("assuming /cmd_vel, number of robots actually"+str(self.num_robots))
                         self.subscribers[0] = rospy.Subscriber("odom", Odometry, self.callback, 0)
 
                 self.data_uri = rospy.get_param("data_uri","/twist");
