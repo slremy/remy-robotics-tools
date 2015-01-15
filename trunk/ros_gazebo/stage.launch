@@ -17,7 +17,7 @@
   <node pkg="mjpeg_server" type="mjpeg_server" name="video_server">
         <param name="port" value="8081"/>
   </node>
-  <node pkg="stage_ros" type="stageros" name="simulation" args="willow-erratic.world" respawn="true">
+  <node pkg="stage_ros" type="stageros" name="simulation" args="$(env HOME)/catkin_ws/src/willow-erratic.world" respawn="true">
         <param name="base_watchdog_timeout" value="50"/>
   </node>
 </launch>
