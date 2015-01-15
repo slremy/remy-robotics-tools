@@ -34,7 +34,7 @@ cd ~/catkin_ws/
 catkin_make
 source ~/.bashrc
 
-cd ~/catkin_ws/src/src
+cd ~/catkin_ws/src/
 git clone https://github.com/ros-simulation/stage_ros.git 
 cd ~/catkin_ws/
 catkin_make
