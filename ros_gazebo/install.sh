@@ -1,37 +1,38 @@
-#install ROS
+#install ROS (and Stage, and Gazebo)
+sudo cp /etc/apt/sources.list  /etc/apt/sources.list.backup
 sudo sed -i "/^# deb.*multiverse/ s/^# //" /etc/apt/sources.list 
-#instructions for 13.04 (Raring)
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu raring main" > /etc/apt/sources.list.d/ros-latest.list'
-
-wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+#instructions for 14.04 (Trusty)
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
 sudo apt-get -y update
-#install ROS with STAGE and GAZEBO
-sudo apt-get -y install ros-hydro-rosbash
-sudo apt-get -y install ros-hydro-stage-ros
-sudo apt-get -y install ros-hydro-gazebo-ros-control ros-hydro-gazebo-ros-pkgs
 sudo apt-get -y install xvfb
 sudo apt-get -y install gdb
 sudo apt-get -y install python-rosdistro python-rosdep python-rosinstall python-rosinstall-generator
-sudo apt-get -y install ros-hydro-mjpeg-server
-
+sudo apt-get -y install ros-indigo-mjpeg-server
+sudo apt-get -y install ros-indigo-stage-ros
 sudo rosdep init
 rosdep update
-echo "source /opt/ros/hydro/setup.bash" >> ~/.bashrc
-
-sudo apt-get -y install python-webpy
-
-#create catkin workspace
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/src
-catkin_init_workspace
-cd ~/catkin_ws
-catkin_make
-echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu precise main" > /etc/apt/sources.list.d/gazebo-latest.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get -y install ros-indigo-gazebo-ros-pkgs
+echo "source /usr/share/gazebo/setup.sh" >> ~/.bashrc
+source ~/.bashrc
+  
 #install ROS web service manually
+#create catkin workspace
+mkdir -p ~/catkin_ws/src
+catkin_make
+echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 cd ~/catkin_ws/src/
-svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
+#svn co https://remy-robotics-tools.googlecode.com/svn/trunk/ros_web_service/
+git clone https://github.com/ros-simulation/stage_ros.git 
 cd ~/catkin_ws/
 catkin_make
-source ~/catkin_ws/devel/setup.bash
+source ~/.bashrc
+
+Xvfb :1 -screen 0 1024x768x24 2>&1 >/dev/null &
+
+sudo apt-get -y install python-webpy
