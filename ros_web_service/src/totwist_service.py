@@ -30,7 +30,7 @@ from geometry_msgs.msg import Twist
 class twist_converter:
         def __init__(self):
                 rospy.init_node('twist_converter', anonymous=True)
-                self.publisher = rospy.Publisher('cmd_vel',Twist);
+                self.publisher = rospy.Publisher('cmd_vel',Twist, queue_size=10);
                 self.data_uri = rospy.get_param("data_uri","/twist");
                 self.urls = (self.data_uri,'twist', "/stop","stop")
                 rospy.logwarn("running")
