@@ -9,6 +9,9 @@ sudo apt-get -y install xvfb x11-apps screen
 sudo apt-get -y install gdb
 sudo apt-get -y install python-rosdistro python-rosdep python-rosinstall python-rosinstall-generator
 sudo apt-get -y install ros-indigo-rosbash
+sudo apt-get -y install ros-indigo-rospy
+sudo apt-get -y install ros-indigo-rostopic
+sudo apt-get -y install ros-indigo-roslaunch
 sudo apt-get -y install ros-indigo-mjpeg-server
 sudo rosdep init
 rosdep update
