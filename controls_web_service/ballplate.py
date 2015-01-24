@@ -8,7 +8,7 @@ from numpy import dot
 
 try:
         port = int(argv[1])
-except:
+except: 
         port = 8080;
 
 clock = timeit.default_timer;
@@ -45,7 +45,7 @@ P=A12/B12
 Q=B11/B12
 R=B10/B12
 theta_high = 3.14/180.0*(32+20);
-r_high = 1.1;
+r_high = 3.1;
 
 
 #2.2.6
@@ -71,7 +71,7 @@ urls = (
                 '/init','initcontroller',
                 '/state','state',
                 '/u','controller',
-                '/u3','controller3',
+                '/z','controller3',
                 '/stop','closecontroller'
                 )
 
@@ -172,7 +172,7 @@ class controller3:
         u = (u0,u1);
         u_time = ( float(i.time) if hasattr(i, 'time') else 0 )
         s_time = ( float(i.stime) if hasattr(i, 'stime') else 0 );
-        f = str(Dist[-1][0])+" "+str(Dist[-2][0])+" "+ str(Theta[-1][0])+" "+ str(Theta[-2][0])+" "+str(Dist[-1][1])+" "+str(Dist[-2][1])+" "+ str(Theta[-1][1])+" "+ str(Theta[-2][1])+" "+repr(t);
+        f = str(Dist[-1][0])+" "+str(Dist[-1][1])+" "+ str(Theta[-1][0])+" "+str(Theta[-1][1])+" "+repr(t);
         web.header("Content-Type", "text/plain") # Set the Header
         return f
 
