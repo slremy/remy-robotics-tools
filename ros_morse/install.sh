@@ -41,6 +41,7 @@ cd morse
 mkdir build && cd build
 cmake -DBUILD_ROS_SUPPORT=ON ..
 sudo make install
+cd ..
 
 sudo rosdep init
 rosdep update
