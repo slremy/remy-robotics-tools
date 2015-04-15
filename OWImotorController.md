@@ -1,0 +1,60 @@
+# Introduction #
+This library was written to extend the functionality of a popular educational Robotic [Arm](http://www.pololu.com/catalog/product/947)  with it's USB [interface](http://www.sears.com/shc/s/p_10153_12605_SPM74462845P).
+
+The code is released under the MIT [License](http://www.opensource.org/licenses/mit-license.php)
+http://www.pololu.com/picture/0J1248.200.jpg?1289989486
+<a href='Hidden comment: 
+<wiki:video url="http://www.youtube.com/watch?v=LivkkLzf82c"/>
+'></a>
+[See it working in the dark!](http://goo.gl/r78Mi)
+
+The following instructions will presume that you are familiar with a posix like environment and command line tools that are common in several flavors of linux and environments such as cygwin.
+
+With that said, effort has been placed to expose the provided motor controller library to languages and environments other than the c++ in which it was written.
+[SWIG](http://swig.org/exec.html) wrappers currently exist for Python, Octave, and Java.  A custom wrapper was also written for Matlab.
+
+Although unix style makefiles are created by default, [CMake](http://www.cmake.org/Wiki/CMake) can enable it to be used in other development environments (like Visual Studio or XCode)
+
+# Building the library #
+
+From a terminal window in a convenient location type the following command to download a local copy of the library:
+
+**svn checkout http://remy-robotics-tools.googlecode.com/svn/trunk/owimotorcontroller owimotorcontroller**
+
+This places the code into a owimotorcontroller subdirectory of the current directory.
+
+Out of source builds of the code are recommended and the [readme.txt](http://code.google.com/p/remy-robotics-tools/source/browse/trunk/owimotorcontroller/readme.txt) contains the directions to compile the code.
+
+As can be expected, tools such as TortoiseSVN, or subclipse could also be used.
+
+### Build Options ###
+If you would like to include the matlab wrapper, at the command line, type:
+
+**cmake -DBUILD\_matlab\_INTERFACES=ON ..**
+
+You can also change parameters like these in the Project's main [CMakeLists.txt](http://code.google.com/p/remy-robotics-tools/source/browse/trunk/owimotorcontroller/CMakeLists.txt)
+
+At the command line (or your cmake-gui) you can also generate build solutions for Xcode, Eclipse, KDevelop3, and Visual Studio (must remember to run cmake before loading in the solution)
+
+To make this magic happen you type something like:
+
+**cmake -G Xcode**
+
+And include what ever other command line parameters to make the world keep spinning.
+
+# Using the Library #
+
+The underlying structure of the library permits the properties of the joint commands to be **_setup_** for each motor, and then the **_set\_control_** commits the commands to the arm.
+
+For example, to set a motor to move forward for 3 seconds, the following code would be used:
+setup\_motorforward(4);
+sleep(3);
+setup\_motoroff(4);
+
+The full list of methods can be seen in the [header](http://remy-robotics-tools.googlecode.com/svn/trunk/owimotorcontroller/src/owimotorcontroller.h).
+
+The [examples](http://remy-robotics-tools.googlecode.com/svn/trunk/owimotorcontroller/examples/) folder contains demonstrations of the library in use in several languages.    Currently this should be used primarily as a guide since they have not been fully tested, for the all the included languages.
+
+If you would like to help test, we would greatly appreciate it!
+
+## Have fun! ##
