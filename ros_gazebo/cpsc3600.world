@@ -1,0 +1,123 @@
+define block model
+(
+  size [0.5 0.5 0.5]
+  gui_nose 0
+)
+
+define topurg ranger
+(
+  obstacle_return 0
+  sensor( 
+    range [ 0.0  30.0 ]
+#    fov 270.25
+    fov 180
+    samples 180
+  )
+
+  # generic model properties
+  color "black"
+  size [ 0.05 0.05 0.1 ]
+)
+
+define erratic position
+(
+  obstacle_return 0
+  #size [0.415 0.392 0.25]
+  size [0.35 0.35 0.25]
+  origin [-0.05 0 0 0]
+  gui_nose 1
+#  drive "diff"
+  drive "omni"
+  topurg(pose [ 0.050 0.000 0 0.000 ])
+
+  camera
+  (
+    obstacle_return 0
+    # laser properties
+    resolution [ 75 100 ]
+    range [ 0.2 8.0 ]
+    fov [ 70.0 40.0 ]
+    pantilt [ 0.0 0.0 ]
+
+    # model properties
+    size [ 0.1 0.07 0.05 ]
+    color "black"
+    watts 100.0 # TODO find watts for sony pan-tilt camera
+  )
+)
+
+define floorplan model
+(
+  # sombre, sensible, artistic
+  color "gray30"
+
+  obstacle_return 0
+
+  # most maps will need a bounding box
+  boundary 1
+
+  gui_nose 0
+  gui_grid 1
+  show_grid 1
+  gui_outline 0
+  gripper_return 0
+  fiducial_return 0
+  laser_return 1
+)
+
+# set the resolution of the underlying raytrace model in meters
+resolution 0.02
+
+interval_sim 100  # simulation timestep in milliseconds
+
+
+window
+( 
+  size [ 745.000 448.000 ] 
+
+  rotate [ 0.000 -1.560 ]
+  scale 28.806 
+)
+
+# load an environment bitmap
+floorplan
+( 
+  name "willow"
+  obstacle_return 0
+  #bitmap "willow-full.pgm"
+  #size [54.0 58.7 0.5]
+  #pose [ -29.350 27.000 0 90.000 ]
+  bitmap "/opt/ros/groovy/stacks/stage/share/stage/worlds/bitmaps/hospital_section.png"
+  size [50.000 24.000 0.600]
+  pose [ .350 .000 0 90.000 ]
+)
+
+# throw in two robots
+erratic( pose [ 1.277 3.266 0 180.000 ] name "era" color "blue")
+erratic( pose [ 3.277 2.266 0 180.000 ] name "era2" color "yellow")
+erratic( pose [ 3.277 3.266 0 180.000 ] name "era3" color "orange")
+erratic( pose [ 1.277 2.266 0 180.000 ] name "era4" color "green")
+block( pose [  3.924 5.020 0 180.000 ] color "red")
+
+
+erratic( pose [ -0.277 1.266 0 180.000 ] name "1era" color "blue")
+erratic( pose [ -1.277 1.266 0 180.000 ] name "1era2" color "yellow")
+erratic( pose [ -2.277 1.266 0 180.000 ] name "1era3" color "orange")
+erratic( pose [ -3.277 1.266 0 180.000 ] name "1era4" color "green")
+erratic( pose [ -4.277 1.266 0 180.000 ] name "1era5" color "purple")
+erratic( pose [ -5.277 1.266 0 180.000 ] name "1era6" color "pink")
+erratic( pose [ -6.277 1.266 0 180.000 ] name "1era7" color "red")
+erratic( pose [ -7.277 1.266 0 180.000 ] name "1era8" color "brown")
+erratic( pose [ -8.277 1.266 0 180.000 ] name "1era9" color "cyan")
+erratic( pose [ -9.277 1.266 0 180.000 ] name "1eraA" color "teal")
+
+erratic( pose [ 0.277 11.266 0 180.000 ] name "2era" color "blue")
+erratic( pose [ 1.277 11.266 0 180.000 ] name "2era2" color "yellow")
+erratic( pose [ 2.277 11.266 0 180.000 ] name "2era3" color "orange")
+erratic( pose [ 3.277 11.266 0 180.000 ] name "2era4" color "green")
+erratic( pose [ 4.277 11.266 0 180.000 ] name "2era5" color "purple")
+erratic( pose [ 5.277 11.266 0 180.000 ] name "2era6" color "pink")
+erratic( pose [ 6.277 11.266 0 180.000 ] name "2era7" color "red")
+erratic( pose [ 7.277 11.266 0 180.000 ] name "2era8" color "brown")
+erratic( pose [ 8.277 11.266 0 180.000 ] name "2era9" color "cyan")
+erratic( pose [ 9.277 11.266 0 180.000 ] name "2eraA" color "teal")
