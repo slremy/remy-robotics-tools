@@ -1,0 +1,38 @@
+<launch>
+  <node pkg="ros_web_service" type="totwistposition_service.py" name="twist_publisher_scan" args="" required = "true">
+        <param name="robot_prefix" value="/robot_"/>
+        <param name="num_robots" value="24"/>
+        <param name="port" value="8080"/>
+        <param name="data_uri" value="/twist"/>
+  </node>
+
+  <node pkg="ros_web_service" type="totwistodom_service.py" name="twist_publisher" args="" required = "true">
+        <param name="robot_prefix" value="/robot_"/>
+        <param name="num_robots" value="24"/>
+        <param name="port" value="8082"/>
+        <param name="odomname" value="/odom"/>
+        <param name="data_uri" value="/twist"/>
+  </node>
+
+  <node pkg="ros_web_service" type="totwistscan_service.py" name="twist_publisher_scan" args="" required = "true">
+        <param name="robot_prefix" value="/robot_"/>
+        <param name="num_robots" value="24"/>
+        <param name="port" value="8083"/>
+        <param name="data_uri" value="/twist"/>
+  </node>
+
+  <node pkg="ros_web_service" type="totwistodom_service.py" name="twist_publisher_global" args="" required = "true">
+        <param name="robot_prefix" value="/robot_"/>
+        <param name="num_robots" value="24"/>
+        <param name="odomname" value="/base_pose_ground_truth"/>
+        <param name="port" value="8084"/>
+        <param name="data_uri" value="/twist"/>
+  </node>
+
+  <node pkg="mjpeg_server" type="mjpeg_server" name="video_server">
+        <param name="port" value="8081"/>
+  </node>
+  <node pkg="stageros" type="stageros" name="simulation" args="$(find stageros)/world/cpsc3600.world" respawn="true">
+        <param name="base_watchdog_timeout" value="50"/>
+  </node>
+</launch>
